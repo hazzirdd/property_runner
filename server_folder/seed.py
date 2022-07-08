@@ -1,5 +1,5 @@
-from model import Manager, Property, Runner, connect_to_db, db
-from server import app
+from server_folder.model import Manager, Property, Runner, connect_to_db, db
+from app import app
 
 def create_manager():
     print('Manager')

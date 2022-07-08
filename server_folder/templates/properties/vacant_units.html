@@ -1,0 +1,8 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1>Vacant Units:</h1>
+    {% for property in properties %}
+        <p>{{ property.unit }}</p>
+    {% endfor %}
+{% endblock %}
