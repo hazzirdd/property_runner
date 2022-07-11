@@ -1,15 +1,16 @@
 {% extends 'base.html' %}
-
 {% block content %}
-    <h1>Vacant Units:</h1>
+    <h1>Past Units</h1>
+
     {% for property in properties %}
         <div>
             <img src="{{ property.cover }}">
-            <a href="/properties/{{ property.property_id }}">Expand View</a>
+            <a href="/past_units/{{ property.property_id }}">Expand View</a>
             <p>ADDRESS: {{ property.address }}</p>
             <p>UNIT: {{ property.unit }}</p>
             <p>VACANT: {{ property.vacant }}</p>
             <p>DAYS VACANT: {{ property.days_vacant }}</p>
         </div>
     {% endfor %}
+
 {% endblock %}

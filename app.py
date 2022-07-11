@@ -1,8 +1,8 @@
-
 from server_folder import app, db
 from server_folder.model import Runner, Manager, Property
 
 from flask import Flask, redirect, render_template, request, url_for, session, flash
+
 
 @app.route('/')
 def homepage():
@@ -94,6 +94,36 @@ def create_runner():
 
         flash(f"Runner successfully created")
         return redirect(url_for('homepage'))
+
+
+@app.route('/past_units', methods=['GET', 'POST'])
+def past_units():
+    all_properties = Property.query.order_by(Property.days_vacant.desc()).all()
+
+    properties = []
+
+    for property in all_properties:
+        if property.vacant == False:
+            properties.append(property)
+
+    return render_template('properties/past_units.html', properties=properties)
+
+
+@app.route('/past_units/<property_id>', methods=['GET', 'POST'])
+def past_unit_details(property_id):
+    unit = Property.query.get(property_id)
+
+    if request.method == 'POST':
+        print('POST')
+        print(unit)
+        unit.vacant = True
+        db.session.commit()
+        print(unit)
+        return redirect(url_for('past_units'))
+    else:
+        print('GET')
+        return render_template('properties/past_unit_details.html', unit=unit)
+
 
 if __name__ == '__main__':
     app.run(debug=True)
