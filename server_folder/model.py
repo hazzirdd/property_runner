@@ -1,4 +1,11 @@
-from server_folder import db
+# RUN THE APP
+# from server_folder import db
+
+# SEED DATABASE
+from flask_sqlalchemy import SQLAlchemy
+from flask import Flask
+app = Flask(__name__)
+db = SQLAlchemy()
 
 class Manager(db.Model):
 
@@ -50,6 +57,6 @@ def connect_to_db(app):
 
 if __name__ == "__main__":
 
-    from app import app
+    # from app import app
     connect_to_db(app)
     print("Connected to DB.")

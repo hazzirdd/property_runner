@@ -3,6 +3,11 @@
 {% block content %}
     <h1>Vacant Units:</h1>
     {% for property in properties %}
-        <p>{{ property.unit }}</p>
+        <div>
+            <img src="{{ property.cover }}">
+            <p>ADDRESS: {{ property.address }}</p>
+            <p>UNIT: {{ property.unit }}</p>
+            <p>DAYS VACANT: {{ property.days_vacant }}</p>
+        </div>
     {% endfor %}
 {% endblock %}

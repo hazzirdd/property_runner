@@ -18,4 +18,5 @@ db = SQLAlchemy(app)
 Migrate(app, db)
 
 from server_folder.view import properties_blueprint
+
 app.register_blueprint(properties_blueprint, url_prefix='/properties')
