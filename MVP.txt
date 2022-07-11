@@ -15,3 +15,4 @@ Future Features:
 -Vacant units get 1+ days vacant added to them every 24 hours
 -The app will use google maps API to create a shortest route between properties
 -At the beginning of a workweek the vacant properties will be automatically divided between runners
+

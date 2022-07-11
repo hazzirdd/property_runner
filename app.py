@@ -1,7 +1,5 @@
-from multiprocessing import managers
-import re
-from unittest import runner
-from server_folder import app
+
+from server_folder import app, db
 from server_folder.model import Runner, Manager, Property
 
 from flask import Flask, redirect, render_template, request, url_for, session, flash
@@ -13,18 +11,17 @@ def homepage():
     elif "manager" in session:
         return render_template('homepage.html')
     else:
-        return redirect(url_for("login"))
+        return redirect(url_for("manager_login"))
 
 
-@app.route('/login', methods=['POST', 'GET'])
-def login():
+@app.route('/runner_login', methods=['POST', 'GET'])
+def runner_login():
     if request.method == 'GET':
-        return render_template('login.html')
+        return render_template('runner_login.html')
     else:
         email = request.form['email']
         password = request.form['password']
 
-        managers = Manager.query.all()
         runners = Runner.query.all()
 
         for runner in runners:
@@ -33,6 +30,20 @@ def login():
                 flash(f"Welcome, {email}")
                 return redirect(url_for('homepage'))
 
+    flash("Incorrect login")
+    return render_template('runner_login.html')      
+
+
+@app.route('/manager_login', methods=['POST', 'GET'])
+def manager_login():
+    if request.method == 'GET':
+        return render_template('manager_login.html')
+    else:
+        email = request.form['email']
+        password = request.form['password']
+
+        managers = Manager.query.all()
+
         for manager in managers:
             if manager.email == email and manager.password == password:
                 session["manager"] = email
@@ -40,7 +51,7 @@ def login():
                 return redirect(url_for('homepage'))
 
     flash("Incorrect login")
-    return render_template('login.html')      
+    return render_template('manager_login.html')      
 
 
 @app.route('/logout', methods=['POST', 'GET'])
@@ -54,8 +65,35 @@ def logout():
         flash(f"Successfully logged out {runner}")
         session.pop("runner", None)
 
-    return redirect(url_for('login'))
+    return redirect(url_for('manager_login'))
 
+
+@app.route('/create_runner', methods=['POST', 'GET'])
+def create_runner():
+    if request.method == 'GET':
+        return render_template('create_runner.html')
+    else:
+        email = request.form['email']
+        password = request.form['password']
+        first_name = request.form['first_name']
+        last_name = request.form['last_name']
+
+        runners = Runner.query.all()
+        for runner in runners:
+            if runner.email == email:
+                flash(f"Email is not available")
+                return redirect(url_for('create_runner'))
+
+        manager_email = session['manager']
+        current_manager = Manager.query.filter(Manager.email == manager_email).first()
+        manager_id = current_manager.manager_id
+
+        runner = Runner(email=email, password=password, first_name=first_name, last_name=last_name, manager_id=manager_id)
+        db.session.add(runner)
+        db.session.commit()
+
+        flash(f"Runner successfully created")
+        return redirect(url_for('homepage'))
 
 if __name__ == '__main__':
     app.run(debug=True)

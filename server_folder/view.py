@@ -13,3 +13,10 @@ def vacant_units():
     properties = Property.query.order_by(Property.days_vacant.desc()).all()
     return render_template('properties/vacant_units.html', properties=properties)
 
+@properties_blueprint.route('/<property_id>')
+def unit_details(property_id):
+
+    unit = Property.query.get(property_id)
+
+
+    return render_template('properties/unit_details.html', unit=unit)

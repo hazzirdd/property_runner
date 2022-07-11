@@ -30,6 +30,7 @@ class Runner(db.Model):
     password = db.Column(db.String(64), nullable=False)
     first_name = db.Column(db.String(64), nullable=False)
     last_name = db.Column(db.String(64), nullable=False)
+    manager_id = db.Column(db.Integer, db.ForeignKey("managers.manager_id"))
 
 
 class Property(db.Model):
@@ -41,6 +42,7 @@ class Property(db.Model):
     unit = db.Column(db.String(64))
     leasing_pics_taken = db.Column(db.Boolean)
     unit_check_done = db.Column(db.Boolean)
+    vacant = db.Column(db.Boolean)
     date_vacated = db.Column(db.DateTime)
     days_vacant = db.Column(db.Integer)
     runner_id = db.Column(db.Integer, db.ForeignKey('runners.runner_id'))

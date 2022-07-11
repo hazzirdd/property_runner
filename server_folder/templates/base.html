@@ -19,18 +19,25 @@
             {% else %}
             <a class="navbar-brand" href="/">Property Runner</a>
             {% endif %}
-
           </div>
-          <ul class="nav navbar-nav">
-            <li class="active"><a href="/">Home</a></li>
 
-            {% if "manager" or "runner" in session %}
+          <ul class="nav navbar-nav">
+            {% if "manager" in session %}
             <li><a href="/logout">Log Out</a></li>
-            {% else %}
-            <li><a href="/login">Log In</a></li>
-            {% endif %}
-            <li><a href="#">Page 2</a></li>
+            <li class="active"><a href="/">Home</a></li>
+            <li><a href="{{ url_for('properties.vacant_units') }}" >Vacant Units</a></li>
+            <li><a href="/create_runner">Create Runner</a></li>
             <li><a href="#">Page 3</a></li>
+
+            {% elif "runner" in session %}
+            <li><a href="/logout">Log Out</a></li>
+            <li class="active"><a href="/">Home</a></li>
+            <li><a href="{{ url_for('properties.vacant_units') }}" >Vacant Units</a></li>
+
+            {% else %}
+            <li><a href="/runner_login">Runner Login</a></li>
+            <li><a href="/manager_login">Manager Login</a></li>
+            {% endif %}
           </ul>
         </div>
       </nav>

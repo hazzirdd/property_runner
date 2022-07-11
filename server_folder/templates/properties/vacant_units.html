@@ -5,6 +5,7 @@
     {% for property in properties %}
         <div>
             <img src="{{ property.cover }}">
+            <a href="/properties/{{ property.property_id }}">Expand View</a>
             <p>ADDRESS: {{ property.address }}</p>
             <p>UNIT: {{ property.unit }}</p>
             <p>DAYS VACANT: {{ property.days_vacant }}</p>
