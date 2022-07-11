@@ -34,8 +34,9 @@ class Property(db.Model):
     unit = db.Column(db.String(64))
     leasing_pics_taken = db.Column(db.Boolean)
     unit_check_done = db.Column(db.Boolean)
+    date_vacated = db.Column(db.DateTime)
+    days_vacant = db.Column(db.Integer)
     runner_id = db.Column(db.Integer, db.ForeignKey('runners.runner_id'))
-
 
     # runner = db.relationship('Runner', backref=db.backref('properties', order_by=property_id))
     
@@ -47,10 +48,7 @@ def connect_to_db(app):
     db.init_app(app)
 
 
-
 if __name__ == "__main__":
-    # As a convenience, if we run this module interactively, it will leave
-    # you in a state of being able to work with the database directly.
 
     from app import app
     connect_to_db(app)

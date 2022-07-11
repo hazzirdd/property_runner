@@ -30,11 +30,11 @@ def create_properties():
     print('Properties')
     Property.query.delete()
 
-    property1 = Property(cover="https://rentpath-res.cloudinary.com/w_336,h_280,t_rp,cs_tinysrgb,fl_force_strip,c_fill/e_unsharp_mask:50,q_auto/b2e4302075f517442cd3bcd715cfa3f1", address='212 S 500 E', unit='2A', leasing_pics_taken=False, unit_check_done=False, runner_id=1)
+    property1 = Property(cover="https://rentpath-res.cloudinary.com/w_336,h_280,t_rp,cs_tinysrgb,fl_force_strip,c_fill/e_unsharp_mask:50,q_auto/b2e4302075f517442cd3bcd715cfa3f1", address='212 S 500 E', days_vacant=1, date_vacated='20220707 01:00:00 AM', runner_id=1)
 
-    property2 = Property(cover="https://rentpath-res.cloudinary.com/w_336,h_280,t_rp,cs_tinysrgb,fl_force_strip,c_fill/e_unsharp_mask:50,q_auto/b2e4302075f517442cd3bcd715cfa3f1", address='212 S 500 E', unit='1B', leasing_pics_taken=False, unit_check_done=False, runner_id=1)
+    property2 = Property(cover="https://rentpath-res.cloudinary.com/w_336,h_280,t_rp,cs_tinysrgb,fl_force_strip,c_fill/e_unsharp_mask:50,q_auto/b2e4302075f517442cd3bcd715cfa3f1", address='212 S 500 E', days_vacant=7, date_vacated='20220701 01:00:00 AM', runner_id=1)
 
-    property3 = Property(cover="https://rentpath-res.cloudinary.com/w_336,h_280,t_rp,cs_tinysrgb,fl_force_strip,c_fill/e_unsharp_mask:50,q_auto/b2e4302075f517442cd3bcd715cfa3f1", address='212 S 500 E', unit='3A', leasing_pics_taken=False, unit_check_done=False, runner_id=1)
+    property3 = Property(cover="https://rentpath-res.cloudinary.com/w_336,h_280,t_rp,cs_tinysrgb,fl_force_strip,c_fill/e_unsharp_mask:50,q_auto/b2e4302075f517442cd3bcd715cfa3f1", address='212 S 500 E', unit='3A', leasing_pics_taken=False, unit_check_done=False, days_vacant=5, date_vacated='20220704 01:00:00 AM', runner_id=1)
 
 
     db.session.add(property1)
