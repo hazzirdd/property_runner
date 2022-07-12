@@ -1,11 +1,11 @@
 # RUN THE APP
-# from server_folder import db
+from server_folder import db
 
 # SEED DATABASE
-from flask_sqlalchemy import SQLAlchemy
-from flask import Flask
-app = Flask(__name__)
-db = SQLAlchemy()
+# from flask_sqlalchemy import SQLAlchemy
+# from flask import Flask
+# app = Flask(__name__)
+# db = SQLAlchemy()
 
 class Manager(db.Model):
 

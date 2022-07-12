@@ -1,0 +1,30 @@
+{% extends 'base.html'%}
+{% block content %}
+
+{% with messages = get_flashed_messages() %}
+{% if messages %}
+    {% for msg in messages %}
+        <p>{{ msg }}</p>
+    {% endfor %}
+{% endif %}
+{% endwith %}
+
+<h1>Add Unit</h1>
+<form method="post">
+    <select name="address" id="address">
+        <option value="">Existing Addresses</option>
+        {% for property in properties %}
+        <option value="{{ property }}">{{ property }}</option>
+        {% endfor %}
+    </select>
+    <input type="text" name="new_address" placeholder="New Address">
+    <input type="text" name="unit" placeholder="Unit Number">
+    <input type="datetime-local" name="date" placeholder="Date Vacated">
+    <select name="runner" id="runner">
+        {% for runner in runners %}
+        <option value="{{ runner.first_name }}_{{ runner.last_name }}">{{ runner.first_name }} {{ runner.last_name }}</option>
+        {% endfor %}
+    </select>
+    <input type="submit" value="Add Unit">
+</form>
+{% endblock %}

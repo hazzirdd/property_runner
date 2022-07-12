@@ -1,7 +1,12 @@
+
+from unittest import runner
 from server_folder import app, db
 from server_folder.model import Runner, Manager, Property
+from server_folder.view import vacant_units
 
+import datetime
 from flask import Flask, redirect, render_template, request, url_for, session, flash
+
 
 
 @app.route('/')
@@ -98,7 +103,7 @@ def create_runner():
 
 @app.route('/past_units', methods=['GET', 'POST'])
 def past_units():
-    all_properties = Property.query.order_by(Property.days_vacant.desc()).all()
+    all_properties = Property.query.order_by(Property.date_vacated.desc()).all()
 
     properties = []
 
@@ -114,16 +119,61 @@ def past_unit_details(property_id):
     unit = Property.query.get(property_id)
 
     if request.method == 'POST':
-        print('POST')
-        print(unit)
         unit.vacant = True
         db.session.commit()
-        print(unit)
         return redirect(url_for('past_units'))
     else:
-        print('GET')
         return render_template('properties/past_unit_details.html', unit=unit)
 
+
+@app.route('/add_unit', methods=['POST', 'GET'])
+def add_unit():
+    runners = Runner.query.order_by(Runner.first_name.desc()).all()
+    all_properties = Property.query.order_by(Property.address.desc()).all()
+    properties = []
+    for property in all_properties:
+        if property.address not in properties:
+            properties.append(property.address)
+
+    if request.method == 'GET':
+        return render_template('properties/add_unit.html', properties=properties, runners=runners)
+
+    elif request.method == 'POST':
+        address = request.form['address']
+        new_address = request.form['new_address'].strip()
+        unit = request.form['unit'].strip()
+        date = request.form['date']
+        runner_full_name = request.form['runner']
+
+        first, last = runner_full_name.split('_')
+
+        selected_runner = Runner.query.filter(Runner.first_name == first and Runner.last_name == last).first()
+        runner_name = selected_runner.first_name
+        runner_id = selected_runner.runner_id
+
+        if address and new_address:
+            flash('Please enter only one address')
+            return redirect(url_for('add_unit'))
+        elif not address and not new_address:
+            flash('Please enter an address')
+            return redirect(url_for('add_unit'))
+        elif not unit:
+            flash('Please enter a unit')
+            return redirect(url_for('add_unit'))
+
+        if address:
+            print(f"Address: {address} | Unit: {unit} | Vacated On: {date} | Runner: {runner_id}")
+            property = Property(cover="https://thumbs.dreamstime.com/b/no-image-available-icon-flat-vector-no-image-available-icon-flat-vector-illustration-132482953.jpg", address=address, unit=unit, leasing_pics_taken=False, unit_check_done=False, vacant=True, date_vacated=date, days_vacant=0, runner_id=runner_id)
+            db.session.add(property)
+            db.session.commit()
+        elif new_address:
+            print(f"New Address: {new_address} | Unit: {unit} | Vacated On: {date} | Runner: {runner_name}")
+            property = Property(cover="https://thumbs.dreamstime.com/b/no-image-available-icon-flat-vector-no-image-available-icon-flat-vector-illustration-132482953.jpg", address=new_address, unit=unit, leasing_pics_taken=False, unit_check_done=False, vacant=True, date_vacated=date, days_vacant=0, runner_id=runner_id)
+            db.session.add(property)
+            db.session.commit()
+
+        flash('Unit successfully created')
+        return render_template('properties/add_unit.html', properties=properties, runners=runners)
 
 if __name__ == '__main__':
     app.run(debug=True)

@@ -4,15 +4,14 @@ from flask_sqlalchemy import SQLAlchemy
 if __name__ == 'view':
     from model import Runner, Property, Manager, db, app
 else:
-    from server_folder.model import Runner, Property, Manager, db, app
+    from server_folder.model import Runner, Property, Manager, db
 
 properties_blueprint = Blueprint('properties', __name__, template_folder = 'templates')
 
 @properties_blueprint.route('/')
 def vacant_units():
-    # all_properties = Property.query.order_by(Property.days_vacant.desc()).all()
-    all_properties = Property.query.all()
-
+    all_properties = Property.query.order_by(Property.date_vacated.desc()).all()
+    # all_properties = Property.query.all()
 
     properties = []
 
