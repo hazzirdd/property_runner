@@ -4,12 +4,11 @@
 
     {% for property in properties %}
         <div>
-            <img src="{{ property.cover }}">
+            <img src="{{ property.cover }}" alt="{{ property.address }}" />
             <a href="/past_units/{{ property.property_id }}">Expand View</a>
             <p>ADDRESS: {{ property.address }}</p>
             <p>UNIT: {{ property.unit }}</p>
             <p>VACANT: {{ property.vacant }}</p>
-            <p>DAYS VACANT: {{ property.days_vacant }}</p>
         </div>
     {% endfor %}
 

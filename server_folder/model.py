@@ -1,11 +1,19 @@
-# RUN THE APP
-from server_folder import db
+## RUN THE APP
+# from server_folder import db
 
-# SEED DATABASE
-# from flask_sqlalchemy import SQLAlchemy
-# from flask import Flask
-# app = Flask(__name__)
-# db = SQLAlchemy()
+## SEED DATABASE
+from tokenize import Name
+from flask_sqlalchemy import SQLAlchemy
+from flask import Flask
+app = Flask(__name__)
+db = SQLAlchemy()
+
+class Team(db.Model):
+
+    __tablename__ = 'teams'
+
+    team_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    name = db.Column(db.String(255), nullable=False)
 
 class Manager(db.Model):
 
@@ -16,6 +24,7 @@ class Manager(db.Model):
     password = db.Column(db.String(64), nullable=False)
     first_name = db.Column(db.String(64), nullable=False)
     last_name = db.Column(db.String(64), nullable=False)
+    team_id = db.Column(db.Integer, db.ForeignKey("teams.team_id"))
 
     def __repr__(self):
         return f"Manager: |{self.manager_id}|{self.first_name}|{self.last_name}|{self.email}|{self.password}"
@@ -31,6 +40,7 @@ class Runner(db.Model):
     first_name = db.Column(db.String(64), nullable=False)
     last_name = db.Column(db.String(64), nullable=False)
     manager_id = db.Column(db.Integer, db.ForeignKey("managers.manager_id"))
+    team_id = db.Column(db.Integer, db.ForeignKey("teams.team_id"))
 
 
 class Property(db.Model):
@@ -46,6 +56,7 @@ class Property(db.Model):
     date_vacated = db.Column(db.DateTime)
     days_vacant = db.Column(db.Integer)
     runner_id = db.Column(db.Integer, db.ForeignKey('runners.runner_id'))
+    team_id = db.Column(db.Integer, db.ForeignKey("teams.team_id"))
 
     # runner = db.relationship('Runner', backref=db.backref('properties', order_by=property_id))
 

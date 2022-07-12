@@ -10,7 +10,7 @@
 {% endwith %}
 
 <h1>Add Unit</h1>
-<form method="post">
+<form method="post" enctype="multipart/form-data">
     <select name="address" id="address">
         <option value="">Existing Addresses</option>
         {% for property in properties %}
@@ -20,6 +20,7 @@
     <input type="text" name="new_address" placeholder="New Address">
     <input type="text" name="unit" placeholder="Unit Number">
     <input type="datetime-local" name="date" placeholder="Date Vacated">
+    <input type="file" name="cover" accept="image/*">
     <select name="runner" id="runner">
         {% for runner in runners %}
         <option value="{{ runner.first_name }}_{{ runner.last_name }}">{{ runner.first_name }} {{ runner.last_name }}</option>

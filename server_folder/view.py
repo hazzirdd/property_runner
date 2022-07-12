@@ -1,4 +1,4 @@
-from flask import Flask, redirect, render_template, Blueprint, request, url_for
+from flask import Flask, redirect, render_template, Blueprint, request, url_for, session
 from flask_sqlalchemy import SQLAlchemy
 
 if __name__ == 'view':
@@ -12,19 +12,31 @@ properties_blueprint = Blueprint('properties', __name__, template_folder = 'temp
 def vacant_units():
     all_properties = Property.query.order_by(Property.date_vacated.desc()).all()
     # all_properties = Property.query.all()
+    runners = Runner.query.all()
 
     properties = []
 
     for property in all_properties:
-        if property.vacant == True:
+        if property.vacant == True and property.team_id == session['team_id']:
             properties.append(property)
 
-    return render_template('properties/vacant_units.html', properties=properties)
+    return render_template('properties/vacant_units.html', properties=properties, runners=runners)
 
 
 @properties_blueprint.route('/<property_id>', methods=['POST', 'GET'])
 def unit_details(property_id):
+    if 'manager' in session:
+        email = session['manager']
+        manager = Manager.query.filter(Manager.email == email).first()
+        manager_id = manager.manager_id
+        managed_runners = Runner.query.filter(Runner.manager_id == manager_id)
+    else:
+        email = None
+        managed_runners = None
+
     unit = Property.query.get(property_id)
+    runner_id = unit.runner_id
+    runner = Runner.query.get(runner_id)
 
     if request.method == 'POST':
         unit.vacant = False
@@ -32,4 +44,4 @@ def unit_details(property_id):
         return redirect(url_for('properties.vacant_units'))
     else:
         print(unit)
-        return render_template('properties/unit_details.html', unit=unit)
+        return render_template('properties/unit_details.html', unit=unit, runner=runner, managed_runners=managed_runners)

@@ -2,8 +2,9 @@
 {% block content %}
     <h1>Details</h1>
     <img src="{{ unit.cover }}">
-    <p>{{ unit.address }}</p>
-    <p>{{ unit.unit }}</p>
+    <p>ADDRESS: {{ unit.address }}</p>
+    <p>UNIT: {{ unit.unit }}</p>
+    <p>RUNNER: {{ runner.first_name }} {{ runner.last_name }}</p>
 
     {% if "manager" in session %}
     <form method="post">
