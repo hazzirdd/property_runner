@@ -1,19 +1,41 @@
 {% extends 'base.html' %}
 {% block content %}
+    <script type="text/javascript">
+        
+        function set_occupied() {
+            var is_occupied = document.getElementById('is_occupied')
+            alert(is_occupied)
+            var occupied_form = document.getElementById('occupied_form')
+            is_occupied.value = "occupied"
+            alert("Running 1!")
+        };
+
+    </script>
+
     <h1>Details</h1>
     <img src="{{ unit.cover }}">
     <p>ADDRESS: {{ unit.address }}</p>
     <p>UNIT: {{ unit.unit }}</p>
     <p>RUNNER: {{ runner.first_name }} {{ runner.last_name }}</p>
+    <p>UNIT CHECK: {{ unit.unit_check_done }}</p>
+    <p>LEASING PICTURES: {{ unit.leasing_pics_taken }}</p>
 
+    
     {% if "manager" in session %}
-    <form method="post">
-        <input type="submit" value="Mark As Occupied">
+    <form method="post" onsubmit="set_occupied()" id="occupied_form">
+        <div style='display:none;'>
+            <input type="text" value="" id="is_occupied" placeholder="test" name="is_occupied">
+        </div>
+        <input type="submit" value="Mark As Occupied" id="occupied">
+    </form>
+
+    <form method="post" id="change_runner">
         <select name="runner" id="runner">
             {% for runner in managed_runners %}
             <option value="{{ runner.first_name }}_{{ runner.last_name }}">{{ runner.first_name }} {{ runner.last_name }}</option>
             {% endfor %}
         </select>
+        <input type="submit" value="Reassign Runner">
     </form>
     {% endif %}
 

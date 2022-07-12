@@ -1,12 +1,12 @@
 ## RUN THE APP
-# from server_folder import db
+from server_folder import db
 
 ## SEED DATABASE
-from tokenize import Name
-from flask_sqlalchemy import SQLAlchemy
-from flask import Flask
-app = Flask(__name__)
-db = SQLAlchemy()
+# from tokenize import Name
+# from flask_sqlalchemy import SQLAlchemy
+# from flask import Flask
+# app = Flask(__name__)
+# db = SQLAlchemy()
 
 class Team(db.Model):
 

@@ -25,6 +25,7 @@ def vacant_units():
 
 @properties_blueprint.route('/<property_id>', methods=['POST', 'GET'])
 def unit_details(property_id):
+
     if 'manager' in session:
         email = session['manager']
         manager = Manager.query.filter(Manager.email == email).first()
@@ -39,9 +40,12 @@ def unit_details(property_id):
     runner = Runner.query.get(runner_id)
 
     if request.method == 'POST':
-        unit.vacant = False
-        db.session.commit()
-        return redirect(url_for('properties.vacant_units'))
+        print("CHECK")
+        if request.form['is_occupied'] == "occupied":
+            print("CHECK2")
+            unit.vacant = False
+            db.session.commit()
+            return redirect(url_for('properties.vacant_units'))
     else:
         print(unit)
         return render_template('properties/unit_details.html', unit=unit, runner=runner, managed_runners=managed_runners)

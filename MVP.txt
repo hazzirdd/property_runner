@@ -2,17 +2,20 @@ Pitch/idea:
 -Create a web application that allows property managers to divide and sort properties to their property runners.
 
 MVP:
--Users can choose to be Managers can create their employees accounts as “property runners”
--Managers can add new properties to the vacant list
--Managers can set their office location or “home base”
--Users can remove properties by marking them as not vacant
--Managers can assign properties to certain property runners 
+-Users can choose to be Managers can create their employees accounts as “property runners”  X
+-Managers can add new properties to the vacant list         X
+-Users can remove properties by marking them as not vacant   X
+-Managers can assign properties to certain property runners   X
 -Managers can add tasks underneath each property that need to be completed. Tasks can be marked off as complete
 -Users can upload photos and videos underneath properties
 -Vacant units can be sorted by zip code, nearest to homebase, or longest vacant
 
 Future Features:
 -Vacant units get 1+ days vacant added to them every 24 hours
+-Managers can set their office location or “home base”
 -The app will use google maps API to create a shortest route between properties
 -At the beginning of a workweek the vacant properties will be automatically divided between runners
 
+
+NOTES:
+-Add unit_check_date column to properties

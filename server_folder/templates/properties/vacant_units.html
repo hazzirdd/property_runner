@@ -10,6 +10,8 @@
             <p>UNIT: {{ property.unit }}</p>
             <p>VACANT: {{ property.vacant }}</p>
             <p>DAYS VACANT: {{ property.days_vacant }}</p>
+            <p>UNIT CHECK: {{ property.unit_check_done }}</p>
+            <p>LEASING PICTURES: {{ property.leasing_pics_taken }}</p>
 
             {% for runner in runners %}
                 {% if runner.runner_id == property.runner_id %}
