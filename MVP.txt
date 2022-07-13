@@ -6,7 +6,7 @@ MVP:
 -Managers can add new properties to the vacant list         X
 -Users can remove properties by marking them as not vacant   X
 -Managers can assign properties to certain property runners   X
--Managers can add tasks underneath each property that need to be completed. Tasks can be marked off as complete
+-Managers can add tasks underneath each property that need to be completed. Tasks can be marked off as complete 
 -Users can upload photos and videos underneath properties
 -Vacant units can be sorted by zip code, nearest to homebase, or longest vacant
 

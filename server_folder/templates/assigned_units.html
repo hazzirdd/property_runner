@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% block content %}
+    <h1>Assigned Units:</h1>
+
+    {% for property in properties %}
+    <div>
+        <img src="{{ property.cover }}">
+        <a href="/properties/{{ property.property_id }}">Expand View</a>
+        <p>ADDRESS: {{ property.address }}</p>
+        <p>UNIT: {{ property.unit }}</p>
+        <p>VACANT: {{ property.vacant }}</p>
+        <p>DAYS VACANT: {{ property.days_vacant }}</p>
+        <p>UNIT CHECK: {{ property.unit_check_done }}</p>
+        <p>LEASING PICTURES: {{ property.leasing_pics_taken }}</p>
+
+        {% for runner in runners %}
+            {% if runner.runner_id == property.runner_id %}
+                <p>RUNNER: {{ runner.first_name }} {{ runner.last_name }}</p>
+            {% endif %}
+        {% endfor %}
+
+    </div>
+{% endfor %}
+{% endblock %}

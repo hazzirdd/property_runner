@@ -61,7 +61,7 @@ class Property(db.Model):
     # runner = db.relationship('Runner', backref=db.backref('properties', order_by=property_id))
 
     def __repr__(self):
-        return f"ID:{self.property_id} UNIT: {self.unit} IS VACANT: {self.vacant}"
+        return f"ID:{self.property_id} UNIT: {self.unit} IS VACANT: {self.vacant} RUNNER ID: {self.runner_id}"
 
 def connect_to_db(app):
     app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://hayde:haz@localhost/property_runner'

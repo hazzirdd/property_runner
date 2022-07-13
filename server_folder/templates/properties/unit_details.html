@@ -47,26 +47,36 @@
     {% endif %} -->
 
 
-{% if "manager" in session %}
-    <form method="post" onsubmit="set_occupied()" id="occupied_form">
-        <div style='display:none;'>
-            <input type="text" value="" id="is_occupied" placeholder="test" name="is_occupied">
-        </div>
-        <input type="submit" value="Mark As Occupied" id="occupied">
-    </form>
-
-    <form method="post" onsubmit="reassign_runner()" id="change_runner_form">
+    <form method="post" id="occupied_form">
+    {% if "manager" in session %}
+        
+        <label for="occupied">(Admin) Move In Complete</label>
+        <input type="checkbox" name="occupied" id="occupied"><br>
+        
+        <label for="runner">(Admin) Reassign Runner</label>
         <select name="runner" id="runner">
             {% for runner in managed_runners %}
-            <option value="{{ runner.first_name }}_{{ runner.last_name }}">{{ runner.first_name }} {{ runner.last_name }}</option>
+            <option value="{{ runner.runner_id }}">{{ runner.first_name }} {{ runner.last_name }}</option>
             {% endfor %}
-        </select>
-        <div style="display:none;">
-            <input type="text" value="" id="runner_set" placeholder="test" name="runner_set">
-        </div>
-        <input type="submit" value="Reassign Runner" id="runner_assigned">
-    </form>
+        </select><br>
     {% endif %}
+
+        <label for="leasing_pics">Leasing Pictures Taken</label>
+        {% if unit.leasing_pics_taken == True %}
+        <input type="checkbox" name="leasing_pics" id="leasing_pics" checked><br>
+        {% else %}
+        <input type="checkbox" name="leasing_pics" id="leasing_pics"><br>
+        {% endif %}
+
+        <label for="unit_check">Unit Check Complete</label>
+        {% if unit.unit_check_done == True %}
+        <input type="checkbox" name="unit_check" id="unit_check" checked><br>
+        {% else %}
+        <input type="checkbox" name="unit_check" id="unit_check"><br>
+        {% endif %}
+
+        <input type="submit" value="Update Unit" id="update_unit">
+    </form>
 
 
 {% endblock %}

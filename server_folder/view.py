@@ -1,3 +1,4 @@
+import re
 from flask import Flask, redirect, render_template, Blueprint, request, url_for, session
 from flask_sqlalchemy import SQLAlchemy
 
@@ -41,21 +42,72 @@ def unit_details(property_id):
 
 
 # IT ONLY LETS ME DO THE STATEMENT ON THE TOP, ANY BELOW FAIL (7/12)
-    if request.method == 'POST' and request.form['runner_set'] == "runner_assigned":
-        runner_full_name = request.form['runner']
-        print(runner_full_name)
-        first, last = runner_full_name.split('_')
-        selected_runner = Runner.query.filter(Runner.first_name == first and Runner.last_name == last).first()
-        runner_id = selected_runner.runner_id
-        unit.runner_id = selected_runner.runner_id
-        db.session.commit()
-        return render_template('properties/unit_details.html', unit=unit, runner=selected_runner, managed_runners=managed_runners)
+    # if request.method == 'POST' and request.form['runner_set'] == "runner_assigned":
+    #     runner_full_name = request.form['runner']
+    #     print(runner_full_name)
+    #     first, last = runner_full_name.split('_')
+    #     selected_runner = Runner.query.filter(Runner.first_name == first and Runner.last_name == last).first()
+    #     runner_id = selected_runner.runner_id
+    #     unit.runner_id = selected_runner.runner_id
+    #     db.session.commit()
+    #     return render_template('properties/unit_details.html', unit=unit, runner=selected_runner, managed_runners=managed_runners)
+    # elif request.method == 'POST' and request.form['is_occupied'] == 'occupied':
+    #     unit.vacant = False
+    #     db.session.commit()
+    #     return redirect(url_for('properties.vacant_units'))
 
-    if request.method == 'POST' and request.form['is_occupied'] == 'occupied':
-        unit.vacant = False
-        db.session.commit()
-        return redirect(url_for('properties.vacant_units'))
+    if request.method == 'POST':
 
+        if 'manager' in session:
+            occupied = request.form.getlist('occupied')
+
+            leasing_pics = request.form.getlist('leasing_pics')
+            unit_check = request.form.getlist('unit_check')
+
+            # Update Runner
+            runner_id = request.form['runner']
+            selected_runner = Runner.query.get(runner_id)
+            unit.runner_id = selected_runner.runner_id
+
+            # Update Occupied
+            if occupied:
+                unit.vacant = False
+            else:
+                unit.vacant = True
+
+            # Update Unit Check
+            if unit_check:
+                unit.unit_check_done = True
+            else:
+                unit.unit_check_done = False
+
+            # Update Leasing Pics
+            if leasing_pics:
+                unit.leasing_pics_taken = True
+            else:
+                unit.leasing_pics_taken = False
+
+            db.session.commit()
+            return render_template('properties/unit_details.html', unit=unit, runner=selected_runner, managed_runners=managed_runners)
+
+        else:
+            leasing_pics = request.form.getlist('leasing_pics')
+            unit_check = request.form.getlist('unit_check')
+
+            # Update Unit Check
+            if unit_check:
+                unit.unit_check_done = True
+            else:
+                unit.unit_check_done = False
+
+            # Update Leasing Pics
+            if leasing_pics:
+                unit.leasing_pics_taken = True
+            else:
+                unit.leasing_pics_taken = False
+
+            db.session.commit()
+            return redirect(url_for('properties.vacant_units'))
 
     else:
         print(unit)

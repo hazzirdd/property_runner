@@ -134,6 +134,16 @@ def past_unit_details(property_id):
 @app.route('/add_unit', methods=['POST', 'GET'])
 def add_unit():
     runners = Runner.query.order_by(Runner.first_name.desc()).all()
+
+    if 'manager' in session:
+        email = session['manager']
+        manager = Manager.query.filter(Manager.email == email).first()
+        manager_id = manager.manager_id
+        managed_runners = Runner.query.filter(Runner.manager_id == manager_id)
+    else:
+        email = None
+        managed_runners = None
+
     all_properties = Property.query.order_by(Property.address.desc()).all()
     properties = []
     for property in all_properties:
@@ -141,7 +151,7 @@ def add_unit():
             properties.append(property.address)
 
     if request.method == 'GET':
-        return render_template('properties/add_unit.html', properties=properties, runners=runners)
+        return render_template('properties/add_unit.html', properties=properties, runners=managed_runners)
 
     elif request.method == 'POST':
         address = request.form['address']
@@ -190,6 +200,28 @@ def add_unit():
 
         flash('Unit successfully created')
         return render_template('properties/add_unit.html', properties=properties, runners=runners)
+
+
+@app.route('/assigned_units')
+def assigned_units():
+    all_properties = Property.query.order_by(Property.date_vacated.desc()).all()
+    runners = Runner.query.all()
+    runner_email = session['runner']
+    properties = []
+
+    for runner in runners:
+        if runner_email == runner.email:
+            runner = Runner.query.get(runner.runner_id)
+            runner_id = runner.runner_id
+
+    for property in all_properties:
+        print(property)
+        if property.runner_id == runner_id:
+            print('PASSED')
+            properties.append(property)
+
+    return render_template('assigned_units.html', properties=properties, runners=runners)
+
 
 if __name__ == '__main__':
     app.run(debug=True)
