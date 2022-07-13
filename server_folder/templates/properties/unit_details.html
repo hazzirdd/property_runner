@@ -4,10 +4,14 @@
         
         function set_occupied() {
             var is_occupied = document.getElementById('is_occupied')
-            alert(is_occupied)
             var occupied_form = document.getElementById('occupied_form')
             is_occupied.value = "occupied"
-            alert("Running 1!")
+        };
+
+        function reassign_runner() {
+            var runner_set = document.getElementById('runner_set')
+            var change_runner_form = document.getElementById('change_runner_form')
+            runner_set.value = "runner_assigned"
         };
 
     </script>
@@ -21,7 +25,7 @@
     <p>LEASING PICTURES: {{ unit.leasing_pics_taken }}</p>
 
     
-    {% if "manager" in session %}
+    <!-- {% if "manager" in session %}
     <form method="post" onsubmit="set_occupied()" id="occupied_form">
         <div style='display:none;'>
             <input type="text" value="" id="is_occupied" placeholder="test" name="is_occupied">
@@ -29,14 +33,40 @@
         <input type="submit" value="Mark As Occupied" id="occupied">
     </form>
 
-    <form method="post" id="change_runner">
+    <form method="post" onsubmit="reassign_runner()" id="change_runner_form">
         <select name="runner" id="runner">
             {% for runner in managed_runners %}
             <option value="{{ runner.first_name }}_{{ runner.last_name }}">{{ runner.first_name }} {{ runner.last_name }}</option>
             {% endfor %}
         </select>
-        <input type="submit" value="Reassign Runner">
+        <div style="display:none;">
+            <input type="text" value="" id="leasing_pics_taken">
+        </div>
+        <input type="submit" value="Reassign Runner" id="listed">
+    </form>
+    {% endif %} -->
+
+
+{% if "manager" in session %}
+    <form method="post" onsubmit="set_occupied()" id="occupied_form">
+        <div style='display:none;'>
+            <input type="text" value="" id="is_occupied" placeholder="test" name="is_occupied">
+        </div>
+        <input type="submit" value="Mark As Occupied" id="occupied">
+    </form>
+
+    <form method="post" onsubmit="reassign_runner()" id="change_runner_form">
+        <select name="runner" id="runner">
+            {% for runner in managed_runners %}
+            <option value="{{ runner.first_name }}_{{ runner.last_name }}">{{ runner.first_name }} {{ runner.last_name }}</option>
+            {% endfor %}
+        </select>
+        <div style="display:none;">
+            <input type="text" value="" id="runner_set" placeholder="test" name="runner_set">
+        </div>
+        <input type="submit" value="Reassign Runner" id="runner_assigned">
     </form>
     {% endif %}
+
 
 {% endblock %}

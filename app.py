@@ -148,8 +148,8 @@ def add_unit():
         new_address = request.form['new_address'].strip()
         unit = request.form['unit'].strip()
         date = request.form['date']
-        runner_full_name = request.form['runner']
         cover = request.files['cover']
+        runner_full_name = request.form['runner']
 
         first, last = runner_full_name.split('_')
 

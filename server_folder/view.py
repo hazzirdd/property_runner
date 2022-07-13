@@ -39,13 +39,24 @@ def unit_details(property_id):
     runner_id = unit.runner_id
     runner = Runner.query.get(runner_id)
 
-    if request.method == 'POST':
-        print("CHECK")
-        if request.form['is_occupied'] == "occupied":
-            print("CHECK2")
-            unit.vacant = False
-            db.session.commit()
-            return redirect(url_for('properties.vacant_units'))
+
+# IT ONLY LETS ME DO THE STATEMENT ON THE TOP, ANY BELOW FAIL (7/12)
+    if request.method == 'POST' and request.form['runner_set'] == "runner_assigned":
+        runner_full_name = request.form['runner']
+        print(runner_full_name)
+        first, last = runner_full_name.split('_')
+        selected_runner = Runner.query.filter(Runner.first_name == first and Runner.last_name == last).first()
+        runner_id = selected_runner.runner_id
+        unit.runner_id = selected_runner.runner_id
+        db.session.commit()
+        return render_template('properties/unit_details.html', unit=unit, runner=selected_runner, managed_runners=managed_runners)
+
+    if request.method == 'POST' and request.form['is_occupied'] == 'occupied':
+        unit.vacant = False
+        db.session.commit()
+        return redirect(url_for('properties.vacant_units'))
+
+
     else:
         print(unit)
         return render_template('properties/unit_details.html', unit=unit, runner=runner, managed_runners=managed_runners)
