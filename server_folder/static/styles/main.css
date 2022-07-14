@@ -2,4 +2,59 @@ body {
     margin: 1px;
     padding: 0;
     color: rgb(0, 0, 0);
+    background-color: rgb(238, 238, 238);
+}
+
+.property-info-container-container {
+    display: flex;
+    justify-content: center;
+}
+
+.property-info-container {
+    display: flex;
+    width: 900px;
+    padding: 10px;
+}
+
+.property_info {
+    display: flex;
+    background-color: rgb(197, 193, 193);
+    width: 100vw;
+    height: 303px;
+    text-align: center;
+    flex-direction: column;
+    border: 2px solid black;
+}
+
+.image_container {
+    display: flex;
+    justify-content: flex-start;
+    position: absolute;
+    align-items: flex-start;
+}
+
+.property_img {
+    background-color: rgb(109, 99, 182);
+    padding: 10px;
+    position: absolute;
+    left: 0;
+    width: 300px;
+}
+
+.property_details {
+    font-size: 15px;
+}
+
+.expand_view {
+    font-size: 25px;
+    border-bottom: 2px solid black;
+    padding: 5px;
+    background-color: aliceblue;
+    color: black;
+}
+
+.expand_view:hover {
+    color: rgb(0, 0, 0);
+    background-color: rgb(204, 212, 220);
+    text-decoration: none;
 }
