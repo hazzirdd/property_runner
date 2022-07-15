@@ -1,6 +1,6 @@
-import re
 from flask import Flask, redirect, render_template, Blueprint, request, url_for, session
 from flask_sqlalchemy import SQLAlchemy
+from datetime import *
 
 if __name__ == 'view':
     from model import Runner, Property, Manager, db, app
@@ -17,9 +17,15 @@ def vacant_units():
 
     properties = []
 
+
     for property in all_properties:
         if property.vacant == True and property.team_id == session['team_id']:
             properties.append(property)
+            dt = datetime.now()
+            date_vacated = property.date_vacated
+            days_vacant = (dt - date_vacated).days
+            property.days_vacant = days_vacant
+            db.session
 
     return render_template('properties/vacant_units.html', properties=properties, runners=runners)
 
@@ -40,6 +46,9 @@ def unit_details(property_id):
     runner_id = unit.runner_id
     runner = Runner.query.get(runner_id)
 
+    dt = datetime.now()
+    date_vacated = unit.date_vacated
+    days_vacant = (dt - date_vacated).days
 
 # IT ONLY LETS ME DO THE STATEMENT ON THE TOP, ANY BELOW FAIL (7/12)
     # if request.method == 'POST' and request.form['runner_set'] == "runner_assigned":
@@ -111,4 +120,4 @@ def unit_details(property_id):
 
     else:
         print(unit)
-        return render_template('properties/unit_details.html', unit=unit, runner=runner, managed_runners=managed_runners)
+        return render_template('properties/unit_details.html', unit=unit, runner=runner, managed_runners=managed_runners, days_vacant=days_vacant)

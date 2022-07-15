@@ -222,6 +222,34 @@ def assigned_units():
 
     return render_template('assigned_units.html', properties=properties, runners=runners)
 
+    
+@app.route('/sort_units', methods=['POST', 'GET'])
+def sort_units():
+    runners = Runner.query.all()
+    all_properties = Property.query.all()
+    properties = []
+
+    sort_by = request.form['sort']
+
+    # for property in all_properties:
+    #     if property.vacant == True and property.team_id == session['team_id']:
+    #         properties.append(property)
+
+    if sort_by == 'runner':
+        all_properties = Property.query.order_by(Property.runner_id)
+
+    if sort_by == 'address':
+        all_properties = Property.query.order_by(Property.address)
+
+    if sort_by == 'vacant':
+        all_properties = Property.query.order_by(Property.date_vacated)
+        
+    for property in all_properties:
+        if property.vacant == True and property.team_id == session['team_id']:
+            properties.append(property)
+
+    return render_template('properties/vacant_units.html', properties=properties, runners=runners)
+
 
 if __name__ == '__main__':
     app.run(debug=True)

@@ -2,6 +2,15 @@
 
 {% block content %}
     <h1>Vacant Units:</h1>
+    <form method="POST" action="{{ url_for('sort_units') }}">
+        <select name="sort">
+            <option value="runner">Runner</option>
+            <option value="address">Address</option>
+            <option value="vacant">Days Vacant</option>
+        </select>
+        <input type="submit" value="Sort">
+    </form>
+
     {% for property in properties %}
     <div class="property-info-container-container">
         <div class="property-info-container">
@@ -12,6 +21,8 @@
             <a class="expand_view" href="/properties/{{ property.property_id }}">Expand View</a>
             <p class="property_details">ADDRESS: <span style="font-weight:bold;color: rgb(61, 61, 61);">{{ property.address }}</span> UNIT: <span style="font-weight:bold;color: rgb(61, 61, 61);">{{ property.unit }}</span></p>
             <p class="property_details">DAYS VACANT: {{ property.days_vacant }}</p>
+            <p class="property_details">DATE VACATED: {{ property.date_vacated }}</p>
+            <p>MATH: {{ propert }} </p>
             <p class="property_details">UNIT CHECK: {{ property.unit_check_done }}</p>
             <p class="property_details">LEASING PICTURES: {{ property.leasing_pics_taken }}</p>
 
