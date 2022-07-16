@@ -1,15 +1,35 @@
 {% extends 'base.html' %}
 {% block content %}
     <h1>Past Units</h1>
+    <form method="POST">
+        <select name="sort">
+            <option value="runner">Runner</option>
+            <option value="address">Address</option>
+            <option value="vacant">Days Vacant</option>
+        </select>
+        <input type="submit" value="Sort">
+    </form>
 
     {% for property in properties %}
-        <div>
-            <img src="{{ property.cover }}" alt="{{ property.address }}" />
-            <a href="/past_units/{{ property.property_id }}">Expand View</a>
-            <p>ADDRESS: {{ property.address }}</p>
-            <p>UNIT: {{ property.unit }}</p>
-            <p>VACANT: {{ property.vacant }}</p>
+    <div class="property-info-container-container">
+        <div class="property-info-container">
+            <div class="property_info">
+            <div class="image_container">
+                <a href="/past_units/{{ property.property_id }}"><img class="property_img" src="{{ property.cover }}"></a><br>
+            </div>
+            <a class="expand_view" href="/past_units/{{ property.property_id }}">Expand View</a>
+            <p class="property_details">ADDRESS: <span style="font-weight:bold;color: rgb(61, 61, 61);">{{ property.address }}</span> UNIT: <span style="font-weight:bold;color: rgb(61, 61, 61);">{{ property.unit }}</span></p>
+  
+
+            {% for runner in runners %}
+                {% if runner.runner_id == property.runner_id %}
+                <p class="property_details">RUNNER: {{ runner.first_name }} {{ runner.last_name }}</p>
+                {% endif %}
+                {% endfor %}
+                
+            </div>
         </div>
+    </div>
     {% endfor %}
 
 {% endblock %}

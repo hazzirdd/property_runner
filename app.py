@@ -110,11 +110,32 @@ def past_units():
 
     properties = []
 
-    for property in all_properties:
-        if property.vacant == False and property.team_id == session['team_id']:
-            properties.append(property)
+    if request.method == 'GET':
+        for property in all_properties:
+            if property.vacant == False and property.team_id == session['team_id']:
+                properties.append(property)
 
-    return render_template('properties/past_units.html', properties=properties)
+        return render_template('properties/past_units.html', properties=properties)
+
+    elif request.method == 'POST':
+        runners = Runner.query.all()
+
+        sort_by = request.form['sort']
+
+        if sort_by == 'runner':
+            all_properties = Property.query.order_by(Property.runner_id)
+
+        if sort_by == 'address':
+            all_properties = Property.query.order_by(Property.address)
+
+        if sort_by == 'vacant':
+            all_properties = Property.query.order_by(Property.date_vacated)
+            
+        for property in all_properties:
+            if property.vacant == False and property.team_id == session['team_id']:
+                properties.append(property)
+
+        return render_template('properties/past_units.html', properties=properties, runners=runners)
 
 
 @app.route('/past_units/<property_id>', methods=['GET', 'POST'])
