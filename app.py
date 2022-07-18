@@ -9,7 +9,15 @@ from werkzeug.utils import secure_filename
 
 @app.route('/')
 def homepage():
-    print(f"TEAM ID: {session['team_id']}")
+    properties = Property.query.all()
+    day = datetime.datetime.today().weekday()
+
+    if day == 6:
+        for property in properties:
+            print(property.address)
+            property.unit_check_done = False
+    db.session.commit()
+
     if "runner" in session:
         return render_template('homepage.html')
     elif "manager" in session:
@@ -176,8 +184,11 @@ def add_unit():
 
     elif request.method == 'POST':
         address = request.form['address']
-        new_address = request.form['new_address'].strip()
-        unit = request.form['unit'].strip()
+        new_address = request.form['new_address'].strip().title()
+        unit = request.form['unit'].strip().title()
+        city = request.form['city'].strip().title()
+        state = request.form['state'].strip().title()
+        zipcode = request.form['zipcode'].strip()
         date = request.form['date']
         cover = request.files['cover']
         runner_full_name = request.form['runner']
@@ -197,6 +208,15 @@ def add_unit():
         elif not unit:
             flash('Please enter a unit')
             return redirect(url_for('add_unit'))
+        elif not city:
+            flash('Please enter a city')
+            return redirect(url_for('add_unit'))
+        elif not state:
+            flash('Please enter a state')
+            return redirect(url_for('add_unit'))
+        elif not zipcode:
+            flash('Please enter a unit')
+            return redirect(url_for('add_unit'))
         elif not cover:
             flash('Please enter a cover image')
             return redirect(url_for('add_unit'))
@@ -205,17 +225,22 @@ def add_unit():
         filename = secure_filename(cover.filename)
         mimetype = cover.mimetype
         cover_data = cover.read()
-        add_to_cloudinary(cover_data, filename)
-
+        res = add_to_cloudinary(cover_data, filename)
+        if res == 'Error':
+            flash('Image name already exists')
+            return redirect(url_for('add_unit'))
 
         if address:
             print(f"Address: {address} | Unit: {unit} | Vacated On: {date} | Runner: {runner_id}")
-            property = Property(cover=f"https://property-runner.mo.cloudinary.net/property-data/.{filename}", address=address, unit=unit, leasing_pics_taken=False, unit_check_done=False, vacant=True, date_vacated=date, days_vacant=0, runner_id=runner_id, team_id=session['team_id'])
+            property = Property(cover=f"https://property-runner.mo.cloudinary.net/property-data/.{filename}", address=address, zipcode=zipcode, unit=unit, leasing_pics_taken=False, unit_check_done=False, vacant=True, date_vacated=date, days_vacant=0, runner_id=runner_id, team_id=session['team_id'])
             db.session.add(property)
             db.session.commit()
         elif new_address:
-            print(f"New Address: {new_address} | Unit: {unit} | Vacated On: {date} | Runner: {runner_name}")
-            property = Property(cover=f"https://property-runner.mo.cloudinary.net/property-data/.{filename}", address=new_address, unit=unit, leasing_pics_taken=False, unit_check_done=False, vacant=True, date_vacated=date, days_vacant=0, runner_id=runner_id, team_id=session['team_id'])
+
+            new_address_full = f"{new_address}, {city}, {state}, {zipcode}"
+
+            print(f"New Address: {new_address_full} | Unit: {unit} | Vacated On: {date} | Runner: {runner_name}")
+            property = Property(cover=f"https://property-runner.mo.cloudinary.net/property-data/.{filename}", address=new_address_full, zipcode=zipcode, unit=unit, leasing_pics_taken=False, unit_check_done=False, vacant=True, date_vacated=date, days_vacant=0, runner_id=runner_id, team_id=session['team_id'])
             db.session.add(property)
             db.session.commit()
 
@@ -229,6 +254,7 @@ def assigned_units():
     runners = Runner.query.all()
     runner_email = session['runner']
     properties = []
+    addresses = {}
 
     for runner in runners:
         if runner_email == runner.email:
@@ -236,25 +262,30 @@ def assigned_units():
             runner_id = runner.runner_id
 
     for property in all_properties:
-        print(property)
         if property.runner_id == runner_id:
-            print('PASSED')
             properties.append(property)
 
-    return render_template('assigned_units.html', properties=properties, runners=runners)
+            address = property.address.split(',')
+
+            addresses[property.property_id] = {
+                "street": address[0],
+                "city": address[1],
+                "state": address[2],
+                "zipcode": address[3]
+            }
+
+    session["previous_page"] = "assigned_units"
+    return render_template('assigned_units.html', properties=properties, runners=runners, addresses=addresses)
 
     
 @app.route('/sort_units', methods=['POST', 'GET'])
 def sort_units():
     runners = Runner.query.all()
-    all_properties = Property.query.all()
+    # all_properties = Property.query.all()
     properties = []
+    addresses = {}
 
     sort_by = request.form['sort']
-
-    # for property in all_properties:
-    #     if property.vacant == True and property.team_id == session['team_id']:
-    #         properties.append(property)
 
     if sort_by == 'runner':
         all_properties = Property.query.order_by(Property.runner_id)
@@ -264,12 +295,54 @@ def sort_units():
 
     if sort_by == 'vacant':
         all_properties = Property.query.order_by(Property.date_vacated)
+
+    if sort_by == 'zipcode':
+        all_properties = Property.query.order_by(Property.zipcode)
         
     for property in all_properties:
         if property.vacant == True and property.team_id == session['team_id']:
             properties.append(property)
 
-    return render_template('properties/vacant_units.html', properties=properties, runners=runners)
+            address = property.address.split(',')
+
+            addresses[property.property_id] = {
+                "street": address[0],
+                "city": address[1],
+                "state": address[2],
+                "zipcode": address[3]
+            }
+
+    return render_template('properties/vacant_units.html', properties=properties, runners=runners, addresses=addresses)
+
+
+@app.route('/map')
+def map():
+    import gmaps
+    import googlemaps
+
+    with open('api.txt') as f:
+        api_key = f.readline()
+        f.close
+
+    # gmaps.configure(api_key=api_key)
+
+    # new_york_coordinates = (40.75, -74.00)
+    # Durango = (37.2753,-107.880067)
+
+    # fig = gmaps.figure()
+    # layer = gmaps.directions.Directions(Durango, new_york_coordinates, mode='car')
+
+    # fig.add_layer(layer)
+    # fig
+
+    map_client = googlemaps.Client(api_key)
+    
+    work_place_address = '451 E 8400 S'
+    map_geocode = map_client.geocode(work_place_address)
+    map = map_geocode[0]['geometry'] 
+
+
+    return render_template('maps/map.html', map=map)
 
 
 if __name__ == '__main__':

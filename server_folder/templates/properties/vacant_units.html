@@ -7,6 +7,7 @@
             <option value="runner">Runner</option>
             <option value="address">Address</option>
             <option value="vacant">Days Vacant</option>
+            <option value="zipcode">Zipcode</option>
         </select>
         <input type="submit" value="Sort">
     </form>
@@ -19,7 +20,10 @@
                 <a href="/properties/{{ property.property_id }}"><img class="property_img" src="{{ property.cover }}"></a><br>
             </div>
             <a class="expand_view" href="/properties/{{ property.property_id }}">Expand View</a>
-            <p class="property_details">ADDRESS: <span style="font-weight:bold;color: rgb(61, 61, 61);">{{ property.address }}</span> UNIT: <span style="font-weight:bold;color: rgb(61, 61, 61);">{{ property.unit }}</span></p>
+            <p class="property_details">ADDRESS: <span style="font-weight:bold;color: rgb(61, 61, 61);">{{ addresses[property.property_id]['street'] }}</span></p>
+
+            <p>{{ addresses[property.property_id]['city'] }}, {{ addresses[property.property_id]['state'] }} {{ addresses[property.property_id]['zipcode'] }}</p>
+            <p> UNIT: <span style="font-weight:bold;color: rgb(61, 61, 61);">{{ property.unit }}</span></p>
 
             <p class="property_details">DAYS VACANT: <span style="font-weight:bold;color: rgb(61, 61, 61);">{{ property.days_vacant }}</span></p>
             

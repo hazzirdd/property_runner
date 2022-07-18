@@ -3,22 +3,40 @@
     <h1>Assigned Units:</h1>
 
     {% for property in properties %}
-    <div>
-        <img src="{{ property.cover }}">
-        <a href="/properties/{{ property.property_id }}">Expand View</a>
-        <p>ADDRESS: {{ property.address }}</p>
-        <p>UNIT: {{ property.unit }}</p>
-        <p>VACANT: {{ property.vacant }}</p>
-        <p>DAYS VACANT: {{ property.days_vacant }}</p>
-        <p>UNIT CHECK: {{ property.unit_check_done }}</p>
-        <p>LEASING PICTURES: {{ property.leasing_pics_taken }}</p>
+    <div class="property-info-container-container">
+        <div class="property-info-container">
+            <div class="property_info">
+            <div class="image_container">
+                <a href="/properties/{{ property.property_id }}"><img class="property_img" src="{{ property.cover }}"></a><br>
+            </div>
+            <a class="expand_view" href="/properties/{{ property.property_id }}">Expand View</a>
+            <p class="property_details">ADDRESS: <span style="font-weight:bold;color: rgb(61, 61, 61);">{{ addresses[property.property_id]['street'] }}</span></p>
 
-        {% for runner in runners %}
-            {% if runner.runner_id == property.runner_id %}
-                <p>RUNNER: {{ runner.first_name }} {{ runner.last_name }}</p>
+            <p>{{ addresses[property.property_id]['city'] }}, {{ addresses[property.property_id]['state'] }} {{ addresses[property.property_id]['zipcode'] }}</p>
+            <p> UNIT: <span style="font-weight:bold;color: rgb(61, 61, 61);">{{ property.unit }}</span></p>
+
+            <p class="property_details">DAYS VACANT: <span style="font-weight:bold;color: rgb(61, 61, 61);">{{ property.days_vacant }}</span></p>
+            
+            {% if property.unit_check_done == True %}
+            <p class="property_details">UNIT CHECK <span style="font-weight:bold;color: rgb(22, 165, 32);">Complete</span></p>
+            {% else %}
+            <p class="property_details">UNIT CHECK: <span style="font-weight:bold;color: rgb(215, 15, 15);">Incomplete</span></p>
             {% endif %}
-        {% endfor %}
 
+            {% if property.leasing_pics_taken == True %}
+            <p class="property_details">LEASING PICTURES: <span style="font-weight:bold;color: rgb(22, 165, 32);">Complete</span></p>
+            {% else %}
+            <p class="property_details">LEASING PICTURES: <span style="font-weight:bold;color: rgb(215, 15, 15);">Incomplete</span></p>
+            {% endif %}
+
+            {% for runner in runners %}
+                {% if runner.runner_id == property.runner_id %}
+                <p class="property_details">RUNNER: <span style="font-weight:bold;color: rgb(61, 61, 61);">{{ runner.first_name }} {{ runner.last_name }}</span></p>
+                {% endif %}
+                {% endfor %}
+                
+            </div>
+        </div>
     </div>
 {% endfor %}
 {% endblock %}

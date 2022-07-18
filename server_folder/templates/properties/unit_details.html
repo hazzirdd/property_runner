@@ -1,29 +1,76 @@
 {% extends 'base.html' %}
 {% block content %}
-    <script type="text/javascript">
-        
-        function set_occupied() {
-            var is_occupied = document.getElementById('is_occupied')
-            var occupied_form = document.getElementById('occupied_form')
-            is_occupied.value = "occupied"
-        };
 
-        function reassign_runner() {
-            var runner_set = document.getElementById('runner_set')
-            var change_runner_form = document.getElementById('change_runner_form')
-            runner_set.value = "runner_assigned"
-        };
+<div class="details-container-container">
+    <div class="details-container">
+        <img src="{{ unit.cover }}" class="details-img">
+        <div class="details-text-container">
+            <p style="font-size: 30px; text-align: center; font-weight: bold">{{ unit.address }}</p>
+            <p class="details-text">UNIT: {{ unit.unit }}</p>
+            <p class="details-text">DAYS VACANT: {{ days_vacant }}</p>
+            <p class="details-text">RUNNER: {{ runner.first_name }} {{ runner.last_name }}</p>
 
-    </script>
+            {% if unit.unit_check_done == True %}
+            <p class="details-text">UNIT CHECK: <span style="color: rgb(6, 82, 11); font-weight:bold">Complete</span></p>
+            {% else %}
+            <p class="details-text">UNIT CHECK: <span style="color: rgb(143, 11, 11); font-weight: bold">Incomplete</span></p>
+            {% endif %}
 
-    <h1>Details</h1>
-    <img src="{{ unit.cover }}">
-    <p>ADDRESS: {{ unit.address }}</p>
-    <p>UNIT: {{ unit.unit }}</p>
-    <p>RUNNER: {{ runner.first_name }} {{ runner.last_name }}</p>
-    <p>UNIT CHECK: {{ unit.unit_check_done }}</p>
-    <p>LEASING PICTURES: {{ unit.leasing_pics_taken }}</p>
-    <p>DAYS VACANT: {{ days_vacant }}</p>
+            {% if unit.leasing_pics_taken == True %}
+            <p class="details-text">LEASING PICTURES: <span style="font-weight:bold;color: rgb(6, 82, 11);">Complete</span></p>
+            {% else %}
+            <p class="details-text">LEASING PICTURES: <span style="font-weight:bold;color: rgb(143, 11, 11);">Incomplete</span></p>
+            {% endif %}
+        </div>
+        <div class="form-container">
+            <h6 class="task-header">Runner Tasks:</h6>
+            <form method="post" id="occupied_form">
+                {% if "manager" in session %}
+                <label class="form-text" for="task">Add Task</label>
+                <input type="text" name="task" id="task" placeholder="New Task"><br>
+                
+                <label class="form-text" for="occupied">(Admin) Move In Complete</label>
+                <input type="checkbox" name="occupied" id="occupied"><br>
+                
+                <label class="form-text" for="runner">(Admin) Reassign Runner</label>
+                <select name="runner" id="runner">
+                    {% for runner in managed_runners %}
+                    <option value="{{ runner.runner_id }}">{{ runner.first_name }} {{ runner.last_name }}</option>
+                    {% endfor %}
+            </select><br>
+            {% endif %}
+            
+            <label class="form-text" class="form-text" for="leasing_pics">Leasing Pictures Taken</label>
+            {% if unit.leasing_pics_taken == True %}
+            <input type="checkbox" name="leasing_pics" id="leasing_pics" checked><br>
+            {% else %}
+            <input type="checkbox" name="leasing_pics" id="leasing_pics"><br>
+            {% endif %}
+            
+            <label class="form-text" for="unit_check">Unit Check Complete</label>
+            {% if unit.unit_check_done == True %}
+            <input type="checkbox" name="unit_check" id="unit_check" checked><br>
+            {% else %}
+            <input type="checkbox" name="unit_check" id="unit_check"><br>
+            {% endif %}
+            
+            <div class="task-container">
+                <h6 class="task-header">Additional Tasks:</h6>
+                {% for task in tasks %}
+                {% if task.completed == False %}
+                <label class="form-text" for="{{ task.task }}">{{ task.task }}</label>
+                <input type="checkbox" name="task{{ task.task_id }}" id="task{{ task.task_id }}"><br>
+                {% else %}
+                <label class="form-text" for="{{ task.task }}">{{ task.task }}</label>
+                <input type="checkbox" name="task{{ task.task_id }}" id="task{{ task.task_id }}" checked><br>
+                {% endif %}
+                {% endfor %}
+            </div>
+            <input class="submit-button" type="submit" value="Update Unit" id="update_unit">
+        </form>
+        </div>
+    </div>
+</div>
 
     
     <!-- {% if "manager" in session %}
@@ -47,37 +94,21 @@
     </form>
     {% endif %} -->
 
-
-    <form method="post" id="occupied_form">
-    {% if "manager" in session %}
+    
+    
+    <!-- <script type="text/javascript">
         
-        <label for="occupied">(Admin) Move In Complete</label>
-        <input type="checkbox" name="occupied" id="occupied"><br>
+        function set_occupied() {
+            var is_occupied = document.getElementById('is_occupied')
+            var occupied_form = document.getElementById('occupied_form')
+            is_occupied.value = "occupied"
+        };
         
-        <label for="runner">(Admin) Reassign Runner</label>
-        <select name="runner" id="runner">
-            {% for runner in managed_runners %}
-            <option value="{{ runner.runner_id }}">{{ runner.first_name }} {{ runner.last_name }}</option>
-            {% endfor %}
-        </select><br>
-    {% endif %}
-
-        <label for="leasing_pics">Leasing Pictures Taken</label>
-        {% if unit.leasing_pics_taken == True %}
-        <input type="checkbox" name="leasing_pics" id="leasing_pics" checked><br>
-        {% else %}
-        <input type="checkbox" name="leasing_pics" id="leasing_pics"><br>
-        {% endif %}
-
-        <label for="unit_check">Unit Check Complete</label>
-        {% if unit.unit_check_done == True %}
-        <input type="checkbox" name="unit_check" id="unit_check" checked><br>
-        {% else %}
-        <input type="checkbox" name="unit_check" id="unit_check"><br>
-        {% endif %}
-
-        <input type="submit" value="Update Unit" id="update_unit">
-    </form>
-
-
-{% endblock %}
+            function reassign_runner() {
+                var runner_set = document.getElementById('runner_set')
+                var change_runner_form = document.getElementById('change_runner_form')
+                runner_set.value = "runner_assigned"
+            };
+        
+        </script> -->
+        {% endblock %}

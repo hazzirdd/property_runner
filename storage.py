@@ -16,12 +16,18 @@ def add_to_cloudinary(cover, name_of_file):
 
     filenames = []
     for file in storage_client.list_blobs(bucket):
-        print(file.name)
         filenames.append(file.name)
 
-    if cover not in filenames:
-        blob.upload_from_string(cover)
 
+    if f".{name_of_file}" not in filenames:
+        blob.upload_from_string(cover)
+    else:
+        return "Error"
+
+    print(f"New File: {name_of_file}")
+    print(f"All Files: {filenames}")
+
+    return "Success"
 
     # with open('Hayden.jpg', 'rb') as f:
     #     blob.upload_from_file(f)

@@ -1,7 +1,7 @@
 # from server_folder.model import Manager, Property, Runner, connect_to_db, db
 # from app import app
 
-from model import Team, Manager, Property, Runner, connect_to_db, db
+from model import Team, Manager, Property, Runner, Task, connect_to_db, db
 
 def create_team():
     print('Team')
@@ -47,21 +47,30 @@ def create_properties():
     print('Properties')
     Property.query.delete()
 
-    property1 = Property(cover="https://property-runner.mo.cloudinary.net/property-data/4-plex.jpg", address='212 S 500 E', unit='1A', leasing_pics_taken=False, unit_check_done=False, vacant=True, days_vacant=1, date_vacated='20220707 01:00:00 AM', runner_id=1, team_id=1)
+    property1 = Property(cover="https://property-runner.mo.cloudinary.net/property-data/4-plex.jpg", address='212 S 500 E, Salt Lake City, UT, 84103', zipcode=84013, unit='1A', leasing_pics_taken=False, unit_check_done=False, vacant=True, days_vacant=1, date_vacated='20220707 01:00:00 AM', runner_id=1, team_id=1)
 
-    property2 = Property(cover="https://property-runner.mo.cloudinary.net/property-data/4-plex.jpg", address='212 S 500 E', unit='2B', leasing_pics_taken=False, unit_check_done=False, vacant=True, days_vacant=7, date_vacated='20220701 01:00:00 AM', runner_id=1, team_id=1)
+    property2 = Property(cover="https://property-runner.mo.cloudinary.net/property-data/4-plex.jpg", address='212 S 500 E, Salt Lake City, UT, 84103', zipcode=84013, unit='2B', leasing_pics_taken=False, unit_check_done=False, vacant=True, days_vacant=7, date_vacated='20220701 01:00:00 AM', runner_id=1, team_id=1)
 
-    property3 = Property(cover="https://property-runner.mo.cloudinary.net/property-data/4-plex.jpg", address='212 S 500 E', unit='3A', leasing_pics_taken=False, unit_check_done=False, vacant=True, days_vacant=5, date_vacated='20220704 01:00:00 AM', runner_id=1, team_id=1)
+    property3 = Property(cover="https://property-runner.mo.cloudinary.net/property-data/4-plex.jpg", address='212 S 500 E, Salt Lake City, UT, 84103', zipcode=84013, unit='3A', leasing_pics_taken=False, unit_check_done=False, vacant=True, days_vacant=5, date_vacated='20220704 01:00:00 AM', runner_id=1, team_id=1)
 
-    property4 = Property(cover="https://property-runner.mo.cloudinary.net/property-data/test.jpg", address='51 N King Drive', unit= 'House', leasing_pics_taken=False, unit_check_done=False, vacant=True, days_vacant=0, date_vacated='20220710 01:00:00 AM', runner_id=2, team_id=1)
+    property4 = Property(cover="https://property-runner.mo.cloudinary.net/property-data/test.jpg", address='51 N King Drive, Holladay, UT, 84117', zipcode=84117, unit= 'House', leasing_pics_taken=False, unit_check_done=False, vacant=True, days_vacant=0, date_vacated='20220710 01:00:00 AM', runner_id=2, team_id=1)
 
-    property5 = Property(cover="https://property-runner.mo.cloudinary.net/property-data/triplex.jpg", address='999 S Ukaliptus Road', unit= '1B', leasing_pics_taken=False, unit_check_done=False, vacant=True, days_vacant=0, date_vacated='20220710 01:00:00 AM', runner_id=2, team_id=2)
+    property5 = Property(cover="https://property-runner.mo.cloudinary.net/property-data/triplex.jpg", address='3709 S 580 E, South Salt Lake, UT, 84106', zipcode=84106, unit= '1B', leasing_pics_taken=False, unit_check_done=False, vacant=True, days_vacant=0, date_vacated='20220710 01:00:00 AM', runner_id=2, team_id=2)
 
     db.session.add(property1)
     db.session.add(property2)
     db.session.add(property3)
     db.session.add(property4)
     db.session.add(property5)
+    db.session.commit()
+
+
+def create_task():
+    print('Tasks')
+    Task.query.delete()
+
+    task1 = Task(task='Remove for least sign from window', completed=False, property_id=1)
+    db.session.add(task1)
     db.session.commit()
 
 if __name__ == '__main__':
@@ -75,3 +84,4 @@ if __name__ == '__main__':
     create_manager()
     create_runner()
     create_properties()
+    create_task()

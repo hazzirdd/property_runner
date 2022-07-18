@@ -3,9 +3,9 @@ from flask_sqlalchemy import SQLAlchemy
 from datetime import *
 
 if __name__ == 'view':
-    from model import Runner, Property, Manager, db, app
+    from model import Runner, Property, Manager, Task, db, app
 else:
-    from server_folder.model import Runner, Property, Manager, db
+    from server_folder.model import Runner, Property, Manager, Task, db
 
 properties_blueprint = Blueprint('properties', __name__, template_folder = 'templates')
 
@@ -16,22 +16,53 @@ def vacant_units():
     runners = Runner.query.all()
 
     properties = []
-
+    addresses = {}
 
     for property in all_properties:
         if property.vacant == True and property.team_id == session['team_id']:
             properties.append(property)
+
+            address = property.address.split(',')
+
+            addresses[property.property_id] = {
+                "street": address[0],
+                "city": address[1],
+                "state": address[2],
+                "zipcode": address[3]
+            }
+
+
             dt = datetime.now()
             date_vacated = property.date_vacated
             days_vacant = (dt - date_vacated).days
             property.days_vacant = days_vacant
-            db.session
+            db.session.commit()
 
-    return render_template('properties/vacant_units.html', properties=properties, runners=runners)
+    return render_template('properties/vacant_units.html', properties=properties, runners=runners, addresses=addresses)
 
 
 @properties_blueprint.route('/<property_id>', methods=['POST', 'GET'])
 def unit_details(property_id):
+
+    all_properties = Property.query.order_by(Property.date_vacated.desc()).all()
+    # all_properties = Property.query.all()
+    runners = Runner.query.all()
+
+    properties = []
+    addresses = {}
+
+    for property in all_properties:
+        if property.vacant == True and property.team_id == session['team_id']:
+            properties.append(property)
+
+            address = property.address.split(',')
+
+            addresses[property.property_id] = {
+                "street": address[0],
+                "city": address[1],
+                "state": address[2],
+                "zipcode": address[3]
+            }
 
     if 'manager' in session:
         email = session['manager']
@@ -41,6 +72,8 @@ def unit_details(property_id):
     else:
         email = None
         managed_runners = None
+
+    tasks = Task.query.filter(Task.property_id == property_id).all()
 
     unit = Property.query.get(property_id)
     runner_id = unit.runner_id
@@ -66,17 +99,22 @@ def unit_details(property_id):
     #     return redirect(url_for('properties.vacant_units'))
 
     if request.method == 'POST':
-
+        leasing_pics = request.form.getlist('leasing_pics')
+        unit_check = request.form.getlist('unit_check')
         if 'manager' in session:
+            task = request.form['task']
             occupied = request.form.getlist('occupied')
+            runner_id = request.form['runner']
 
-            leasing_pics = request.form.getlist('leasing_pics')
-            unit_check = request.form.getlist('unit_check')
 
             # Update Runner
-            runner_id = request.form['runner']
             selected_runner = Runner.query.get(runner_id)
             unit.runner_id = selected_runner.runner_id
+
+            # Add Task
+            if task:
+                new_task = Task(task=f'{task}', completed=False, property_id=property_id)
+                db.session.add(new_task)
 
             # Update Occupied
             if occupied:
@@ -84,40 +122,31 @@ def unit_details(property_id):
             else:
                 unit.vacant = True
 
-            # Update Unit Check
-            if unit_check:
-                unit.unit_check_done = True
+        # Update Tasks
+        for task in tasks:
+            checked_job = request.form.getlist(f'task{task.task_id}')
+            if checked_job:
+                task.completed = True
             else:
-                unit.unit_check_done = False
-
-            # Update Leasing Pics
-            if leasing_pics:
-                unit.leasing_pics_taken = True
-            else:
-                unit.leasing_pics_taken = False
-
-            db.session.commit()
-            return render_template('properties/unit_details.html', unit=unit, runner=selected_runner, managed_runners=managed_runners)
-
+                task.completed = False
+                       
+        # Update Unit Check
+        if unit_check:
+            unit.unit_check_done = True
         else:
-            leasing_pics = request.form.getlist('leasing_pics')
-            unit_check = request.form.getlist('unit_check')
+            unit.unit_check_done = False
 
-            # Update Unit Check
-            if unit_check:
-                unit.unit_check_done = True
-            else:
-                unit.unit_check_done = False
+        # Update Leasing Pics
+        if leasing_pics:
+            unit.leasing_pics_taken = True
+        else:
+            unit.leasing_pics_taken = False
 
-            # Update Leasing Pics
-            if leasing_pics:
-                unit.leasing_pics_taken = True
-            else:
-                unit.leasing_pics_taken = False
+        db.session.commit()
 
-            db.session.commit()
-            return redirect(url_for('properties.vacant_units'))
+        return render_template('properties/vacant_units.html', properties=properties, runners=runners, addresses=addresses)
 
     else:
         print(unit)
-        return render_template('properties/unit_details.html', unit=unit, runner=runner, managed_runners=managed_runners, days_vacant=days_vacant)
+
+        return render_template('properties/unit_details.html', unit=unit, runner=runner, managed_runners=managed_runners, days_vacant=days_vacant, tasks=tasks)
