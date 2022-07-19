@@ -76,6 +76,15 @@ class Task(db.Model):
     property_id = db.Column(db.Integer,db.ForeignKey('properties.property_id'))
 
 
+class Picture(db.Model):
+
+    __tablename__ = 'pictures'
+
+    picture_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    picture = db.Column(db.String(300), nullable=False)
+    property_id = db.Column(db.Integer, db.ForeignKey('properties.property_id'))
+
+
 def connect_to_db(app):
     app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://hayde:haz@localhost/property_runner'
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False

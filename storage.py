@@ -32,3 +32,23 @@ def add_to_cloudinary(cover, name_of_file):
     # with open('Hayden.jpg', 'rb') as f:
     #     blob.upload_from_file(f)
     # print("Upload complete")
+
+
+def delete_from_cloudinary(name_of_file):
+    storage_client = storage.Client.from_service_account_json("property-runner-aaa5f5ba471b.json")
+    # Create a Bucket object
+    bucket = storage_client.get_bucket('property-runner')
+    filename = "%s.%s" % ('', f'{name_of_file}')
+    blobs = bucket.list_blobs(bucket)
+
+    dot_name_of_file = f".{name_of_file}"
+    blob = bucket.blob(dot_name_of_file)
+    print(blob)
+    blob.delete()
+
+    # for file in storage_client.list_blobs(bucket):
+    #     print(file)
+
+
+    # print(filename)
+    # print(blobs)

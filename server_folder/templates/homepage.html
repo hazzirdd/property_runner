@@ -1,27 +1,62 @@
 {% extends 'base.html' %}
 {% block content %}
 
-{% with messages = get_flashed_messages() %}
-{% if messages %}
-    {% for msg in messages %}
-        <p>{{ msg }}</p>
+{% with messages = get_flashed_messages(with_categories=true) %}
+   {% if messages %}
+   {% for category, message in messages %}
+   <div class="alert alert-{{ category }}">
+    {{ message }}
+    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
     {% endfor %}
-{% endif %}
-{% endwith %}
+  {% endif %}
+ {% endwith %}
 
     <h1>Home</h1>
     <a href="{{ url_for('properties.vacant_units') }}" >View Vacant Units</a>
 
     <div class="home-container-container">
         <div class="home-dashboard">
-            <div>
+            <div class="dash-list-box">
                 <h5 class="dashboard-title">Leasing Pictures:</h5>
+                {% if pic_count == 0 %}
+                <h6 class="to-do">To Do: <span style="font-weight:bold; color:rgb(22, 165, 32)">{{ pic_count }}</span></h6>
+                {% else %}
+                <h6 class="to-do">To Do: <span style="font-weight:bold; color:rgb(215, 15, 15)">{{ pic_count }}</span></h6>
+                {% endif %}
+                <ul>
+                    {% for property in needs_leasing_pics %}
+                    <a href="/properties/{{ property.property_id }}"><p class="dashboard-text">{{ property }}</p></a>
+                    {% endfor %}
+                </ul>
             </div>
-            <div>
+            <div class="dash-list-box">
                 <h5 class="dashboard-title">Unit Checks:</h5>
+                {% if check_count == 0 %}
+                <h6 class="to-do">To Do: <span style="font-weight:bold; color:rgb(22, 165, 32)">{{ check_count }}</span></h6>
+                {% else %}
+                <h6 class="to-do">To Do: <span style="font-weight:bold; color:rgb(215, 15, 15)">{{ check_count }}</span></h6>
+                {% endif %}
+                <ul>
+                    {% for property in needs_unit_check %}
+                    <a href="/properties/{{ property.property_id }}"><p class="dashboard-text">{{ property }}</p></a>
+                    {% endfor %}
+                </ul>
             </div>
-            <div>
+            <div class="dash-list-box">
                 <h5 class="dashboard-title">Tasks:</h5>
+                {% if task_count == 0 %}
+                <h6 class="to-do">To Do: <span style="font-weight:bold; color:rgb(22, 165, 32)">{{ task_count }}</span></h6>
+                {% else %}
+                <h6 class="to-do">To Do: <span style="font-weight:bold; color:rgb(215, 15, 15)">{{ task_count }}</span></h6>
+                {% endif %}
+                <ul>
+                    {% for property in needs_tasks %}
+                    <a href="/properties/{{ property.property_id }}"><p class="dashboard-text">{{ property }}</p></a>
+                    {% endfor %}  
+                </ul>
             </div>
         </div>
     </div>

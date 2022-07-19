@@ -1,10 +1,11 @@
+from multiprocessing import synchronize
+from turtle import dot
 from server_folder import app, db
-from server_folder.model import Runner, Manager, Property
+from server_folder.model import Runner, Manager, Property, Task, Picture, Team
 
 import datetime
 from flask import Flask, redirect, render_template, request, url_for, session, flash
 from werkzeug.utils import secure_filename
-
 
 
 @app.route('/')
@@ -14,16 +15,115 @@ def homepage():
 
     if day == 6:
         for property in properties:
-            print(property.address)
-            property.unit_check_done = False
+            if property.vacant == True:
+                property.unit_check_done = False
     db.session.commit()
 
     if "runner" in session:
-        return render_template('homepage.html')
+        team_id = session['team_id']
+        runners = Runner.query.all()
+        runner_email = session["runner"]
+
+        for runner in runners:
+            if runner_email == runner.email:
+                runner = Runner.query.get(runner.runner_id)
+                runner_id = runner.runner_id
+
+        properties = Property.query.filter(Property.runner_id == runner_id, Property.team_id == team_id).all()
+        all_tasks = Task.query.all()
+
+        needs_leasing_pics = []
+        needs_unit_check = []
+        needs_tasks = []
+
+        check_count = 0
+        for property in properties:
+            if property.unit_check_done == False and property.vacant == True:
+                nickname = property.address.split(",")
+                needs_unit_check.append(nickname[0])
+                check_count += 1
+        pic_count = 0
+        for property in properties:
+            if property.leasing_pics_taken == False and property.vacant == True:
+                nickname = property.address.split(",")
+                needs_leasing_pics.append(nickname[0])
+                pic_count += 1
+        task_count = 0
+        for property in properties:
+            for task in all_tasks:
+                if property.property_id == task.property_id and property.vacant == True:
+                    nickname = property.address.split(",")
+                    if nickname[0] not in needs_tasks:
+                        needs_tasks.append(nickname[0])
+                        task_count += 1
+
+        return render_template('homepage.html', needs_leasing_pics=needs_leasing_pics, needs_unit_check=needs_unit_check, needs_tasks=needs_tasks, check_count=check_count, pic_count=pic_count, task_count=task_count)
+
     elif "manager" in session:
-        return render_template('homepage.html')
+        runners = Runner.query.all()
+        team_id = session["team_id"]
+
+        properties = Property.query.filter(Property.team_id == team_id).all()
+        all_tasks = Task.query.all()
+
+        needs_leasing_pics = []
+        needs_unit_check = []
+        needs_tasks = []
+
+        check_count = 0
+        for property in properties:
+            if property.unit_check_done == False and property.vacant == True:
+                nickname = property.address.split(",")
+                needs_unit_check.append(nickname[0])
+                check_count += 1
+        pic_count = 0
+        for property in properties:
+            if property.leasing_pics_taken == False and property.vacant == True:
+                nickname = property.address.split(",")
+                needs_leasing_pics.append(nickname[0])
+                pic_count += 1
+        task_count = 0
+        for property in properties:
+            for task in all_tasks:
+                if property.property_id == task.property_id and property.vacant == True and task.completed == False:
+                    nickname = property.address.split(",")
+                    if nickname[0] not in needs_tasks:
+                        needs_tasks.append(nickname[0])
+                        task_count += 1
+
+
+        return render_template('homepage.html', needs_leasing_pics=needs_leasing_pics, needs_unit_check=needs_unit_check, needs_tasks=needs_tasks, check_count=check_count, pic_count=pic_count, task_count=task_count)
     else:
         return redirect(url_for("manager_login"))
+
+
+@app.route('/create_account', methods=['POST', 'GET'])
+def create_account():
+    if request.method == 'GET':
+        return render_template('create_account.html')
+    else:
+        email = request.form['email']
+        password = request.form['password']
+        first_name = request.form['first_name']
+        last_name = request.form['last_name']
+        company_name = request.form['company_name']
+
+        managers = Manager.query.all()
+        for manager in managers:
+            if manager.email == email:
+                flash(f"Email is not available", 'danger')
+                return redirect(url_for('create_account'))
+        
+        team = Team(name=company_name)
+        db.session.add(team)
+        db.session.commit()
+
+        manager = Manager(email=email, password=password, first_name=first_name, last_name=last_name, team_id=team.team_id)
+        db.session.add(manager)
+        db.session.commit()
+
+        flash(f"Account successfully created", 'success')
+        return redirect(url_for('manager_login'))
 
 
 @app.route('/runner_login', methods=['POST', 'GET'])
@@ -40,10 +140,10 @@ def runner_login():
             if runner.email == email and runner.password == password:
                 session["runner"] = email
                 session["team_id"] = runner.team_id
-                flash(f"Welcome, {email}")
+                flash(f"Welcome, {runner.first_name}!", "success")
                 return redirect(url_for('homepage'))
 
-    flash("Incorrect login")
+    flash("Incorrect login", 'danger')
     return render_template('runner_login.html')      
 
 
@@ -61,10 +161,10 @@ def manager_login():
             if manager.email == email and manager.password == password:
                 session["manager"] = email
                 session["team_id"] = manager.team_id
-                flash(f"Welcome, {email} with {session['team_id']} ({manager.team_id})")
+                flash(f"Welcome, {manager.first_name} {manager.last_name}!", 'success')
                 return redirect(url_for('homepage'))
 
-    flash("Incorrect login")
+    flash("Incorrect login", 'danger')
     return render_template('manager_login.html')      
 
 
@@ -72,12 +172,12 @@ def manager_login():
 def logout():
     if "manager" in session:
         manager = session["manager"]
-        flash(f"Successfully logged out {manager}")
+        flash(f"Successfully logged out {manager}", 'success')
         session.pop("manager", None)
         session.pop("team_id", None)
     elif "runner" in session:
         runner = session["runner"]
-        flash(f"Successfully logged out {runner}")
+        flash(f"Successfully logged out {runner}", 'success')
         session.pop("runner", None)
         session.pop("team_id", None)
 
@@ -97,7 +197,7 @@ def create_runner():
         runners = Runner.query.all()
         for runner in runners:
             if runner.email == email:
-                flash(f"Email is not available")
+                flash(f"Email is not available", 'danger')
                 return redirect(url_for('create_runner'))
 
         manager_email = session['manager']
@@ -108,7 +208,7 @@ def create_runner():
         db.session.add(runner)
         db.session.commit()
 
-        flash(f"Runner successfully created")
+        flash(f"Runner successfully created", 'success')
         return redirect(url_for('homepage'))
 
 
@@ -200,25 +300,25 @@ def add_unit():
         runner_id = selected_runner.runner_id
 
         if address and new_address:
-            flash('Please enter only one address')
+            flash('Please enter only one address', 'danger')
             return redirect(url_for('add_unit'))
         elif not address and not new_address:
-            flash('Please enter an address')
+            flash('Please enter an address', 'danger')
             return redirect(url_for('add_unit'))
         elif not unit:
-            flash('Please enter a unit')
+            flash('Please enter a unit', 'danger')
             return redirect(url_for('add_unit'))
         elif not city:
-            flash('Please enter a city')
+            flash('Please enter a city', 'danger')
             return redirect(url_for('add_unit'))
         elif not state:
-            flash('Please enter a state')
+            flash('Please enter a state', 'danger')
             return redirect(url_for('add_unit'))
         elif not zipcode:
-            flash('Please enter a unit')
+            flash('Please enter a unit', 'danger')
             return redirect(url_for('add_unit'))
         elif not cover:
-            flash('Please enter a cover image')
+            flash('Please enter a cover image', 'danger')
             return redirect(url_for('add_unit'))
 
         from storage import add_to_cloudinary
@@ -227,7 +327,7 @@ def add_unit():
         cover_data = cover.read()
         res = add_to_cloudinary(cover_data, filename)
         if res == 'Error':
-            flash('Image name already exists')
+            flash('Image name already exists', 'danger')
             return redirect(url_for('add_unit'))
 
         if address:
@@ -244,7 +344,7 @@ def add_unit():
             db.session.add(property)
             db.session.commit()
 
-        flash('Unit successfully created')
+        flash('Unit successfully created', 'success')
         return render_template('properties/add_unit.html', properties=properties, runners=runners)
 
 
@@ -253,6 +353,7 @@ def assigned_units():
     all_properties = Property.query.order_by(Property.date_vacated.desc()).all()
     runners = Runner.query.all()
     runner_email = session['runner']
+    team_id = session['team_id']
     properties = []
     addresses = {}
 
@@ -262,7 +363,7 @@ def assigned_units():
             runner_id = runner.runner_id
 
     for property in all_properties:
-        if property.runner_id == runner_id:
+        if property.runner_id == runner_id and property.team_id == team_id:
             properties.append(property)
 
             address = property.address.split(',')
@@ -313,6 +414,26 @@ def sort_units():
             }
 
     return render_template('properties/vacant_units.html', properties=properties, runners=runners, addresses=addresses)
+
+
+@app.route('/delete_pic/<picture_id>', methods=['POST'])
+def delete_pic(picture_id):
+    picture = Picture.query.filter(Picture.picture_id == picture_id).one()
+
+    pic_split = picture.picture.split('/')
+
+    dot_filename = pic_split[-1]
+
+    filename = dot_filename[1:]
+
+    from storage import delete_from_cloudinary
+    delete_from_cloudinary(filename)
+
+    db.session.delete(picture)
+    db.session.commit()
+
+    return redirect(url_for('properties.vacant_units'))
+
 
 
 @app.route('/map')

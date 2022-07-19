@@ -1,6 +1,19 @@
 {% extends 'base.html' %}
 {% block content %}
 
+{% with messages = get_flashed_messages(with_categories=true) %}
+   {% if messages %}
+   {% for category, message in messages %}
+   <div class="alert alert-{{ category }}">
+    {{ message }}
+    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+    {% endfor %}
+  {% endif %}
+ {% endwith %}
+
 <div class="details-container-container">
     <div class="details-container">
         <img src="{{ unit.cover }}" class="details-img">
@@ -24,7 +37,7 @@
         </div>
         <div class="form-container">
             <h6 class="task-header">Runner Tasks:</h6>
-            <form method="post" id="occupied_form">
+            <form method="post" id="occupied_form" enctype="multipart/form-data">
                 {% if "manager" in session %}
                 <label class="form-text" for="task">Add Task</label>
                 <input type="text" name="task" id="task" placeholder="New Task"><br>
@@ -40,17 +53,19 @@
             </select><br>
             {% endif %}
             
-            <label class="form-text" class="form-text" for="leasing_pics">Leasing Pictures Taken</label>
             {% if unit.leasing_pics_taken == True %}
+            <label class="form-text" for="leasing_pics" style="text-decoration: line-through">Leasing Pictures Taken</label>
             <input type="checkbox" name="leasing_pics" id="leasing_pics" checked><br>
             {% else %}
-            <input type="checkbox" name="leasing_pics" id="leasing_pics"><br>
+            <label class="form-text" for="leasing_pics">Leasing Pictures Taken</label>
+            <input class="task-check" type="checkbox" name="leasing_pics" id="leasing_pics"><br>
             {% endif %}
             
-            <label class="form-text" for="unit_check">Unit Check Complete</label>
             {% if unit.unit_check_done == True %}
+            <label class="form-text" for="unit_check" style="text-decoration: line-through">Unit Check Complete</label>
             <input type="checkbox" name="unit_check" id="unit_check" checked><br>
             {% else %}
+            <label class="form-text" for="unit_check">Unit Check Complete</label>
             <input type="checkbox" name="unit_check" id="unit_check"><br>
             {% endif %}
             
@@ -61,15 +76,27 @@
                 <label class="form-text" for="{{ task.task }}">{{ task.task }}</label>
                 <input type="checkbox" name="task{{ task.task_id }}" id="task{{ task.task_id }}"><br>
                 {% else %}
-                <label class="form-text" for="{{ task.task }}">{{ task.task }}</label>
+                <label class="form-text" for="{{ task.task }}" style="text-decoration: line-through">{{ task.task }}</label>
                 <input type="checkbox" name="task{{ task.task_id }}" id="task{{ task.task_id }}" checked><br>
                 {% endif %}
                 {% endfor %}
             </div>
             <input class="submit-button" type="submit" value="Update Unit" id="update_unit">
+
+            <br><label class="form-text" for="files">Upload Pictures</label>
+            <input type="file" id="picture" name="picture" accept="image/*">
         </form>
         </div>
     </div>
+</div>
+
+<div class="unit-details-pictures-container">
+    {% for pic in property_pics %}
+    <img src="{{ pic.picture }}" class="unit-details-pictures">
+    <form method="post" action="/delete_pic/{{ pic.picture_id }}">
+        <input type="submit" value="delete">
+    </form>
+    {% endfor %}
 </div>
 
     

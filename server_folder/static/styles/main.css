@@ -109,10 +109,13 @@ body {
     font-size: 18px;
 }
 
+.task-check {
+}
+
 .task-container {
-    position: relative;
-    right: -500px;
-    top: -205px;
+    position: absolute;
+    right: 176px;
+    top: 17px;
 }
 
 .task-header {
@@ -121,14 +124,22 @@ body {
 }
 
 .submit-button {
-    position: relative;
+    position: absolute;
     border: 3px solid rgb(109, 99, 182);
     background-color: rgb(193, 188, 228);
     width: 500px;
     height: 60px;
-    bottom: 80px;
-    right: -170px;
+    bottom: 3px;
+    right: 260px;
     font-weight: bold;
+}
+
+.unit-details-pictures {
+    width: 350px;
+}
+
+.unit-details-pictures-container {
+    background-color: aliceblue;
 }
 
 /* HOMEPAGE */
@@ -148,11 +159,27 @@ body {
     background-color: rgb(197, 193, 193);
 }
 
+.dash-list-box {
+    border: 1px dotted black;
+    height: 100%;
+    width: 100%;
+}
+
 .dashboard-title {
     font-size: 28px;
     font-weight: bold;
+    text-align: center;
+    text-decoration: underline;
 }
 
 .dashboard-text {
     font-size: 15px;
+    color: black;
+    text-align: left;
 }
+
+.to-do {
+    font-size: 22px;
+    text-align: center;
+}
+

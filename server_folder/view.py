@@ -1,11 +1,12 @@
-from flask import Flask, redirect, render_template, Blueprint, request, url_for, session
+from flask import Flask, redirect, render_template, Blueprint, request, url_for, session, flash
 from flask_sqlalchemy import SQLAlchemy
 from datetime import *
+from werkzeug.utils import secure_filename
 
 if __name__ == 'view':
-    from model import Runner, Property, Manager, Task, db, app
+    from model import Runner, Property, Manager, Task, Picture, db, app
 else:
-    from server_folder.model import Runner, Property, Manager, Task, db
+    from server_folder.model import Runner, Property, Manager, Task, Picture, db
 
 properties_blueprint = Blueprint('properties', __name__, template_folder = 'templates')
 
@@ -47,6 +48,7 @@ def unit_details(property_id):
     all_properties = Property.query.order_by(Property.date_vacated.desc()).all()
     # all_properties = Property.query.all()
     runners = Runner.query.all()
+    property_pics = Picture.query.filter(Picture.property_id == property_id)
 
     properties = []
     addresses = {}
@@ -101,6 +103,8 @@ def unit_details(property_id):
     if request.method == 'POST':
         leasing_pics = request.form.getlist('leasing_pics')
         unit_check = request.form.getlist('unit_check')
+        picture = request.files['picture']
+
         if 'manager' in session:
             task = request.form['task']
             occupied = request.form.getlist('occupied')
@@ -142,11 +146,23 @@ def unit_details(property_id):
         else:
             unit.leasing_pics_taken = False
 
+        # Update Pictures
+        if picture:
+            from storage import add_to_cloudinary
+            filename = secure_filename(picture.filename)
+            cover_data = picture.read()
+            res = add_to_cloudinary(cover_data, filename)
+            if res == 'Error':
+                flash('Image name already exists', 'danger')
+                return redirect(url_for('add_unit'))
+
+            picture = Picture(picture=f"https://property-runner.mo.cloudinary.net/property-data/.{filename}", property_id=property_id)
+            db.session.add(picture)
+
         db.session.commit()
 
         return render_template('properties/vacant_units.html', properties=properties, runners=runners, addresses=addresses)
 
     else:
-        print(unit)
 
-        return render_template('properties/unit_details.html', unit=unit, runner=runner, managed_runners=managed_runners, days_vacant=days_vacant, tasks=tasks)
+        return render_template('properties/unit_details.html', unit=unit, runner=runner, managed_runners=managed_runners, days_vacant=days_vacant, tasks=tasks, property_pics=property_pics)
