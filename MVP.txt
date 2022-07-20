@@ -7,7 +7,7 @@ MVP:
 -Users can remove properties by marking them as not vacant   X
 -Managers can assign properties to certain property runners   X
 -Managers can add tasks underneath each property that need to be completed. Tasks can be marked off as complete  X
--Users can upload photos and videos underneath properties
+-Users can upload photos and videos underneath properties  X
 -Vacant units can be sorted by zip code, nearest to homebase, or longest vacant
 
 Future Features:

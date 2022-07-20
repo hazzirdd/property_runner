@@ -161,7 +161,7 @@ def unit_details(property_id):
 
         db.session.commit()
 
-        return render_template('properties/vacant_units.html', properties=properties, runners=runners, addresses=addresses)
+        return redirect(url_for('past_units'))
 
     else:
 

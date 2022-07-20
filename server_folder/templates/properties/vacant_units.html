@@ -1,17 +1,27 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    <h1>Vacant Units:</h1>
+<div class="title-container-container">
+    <div class="title-container">
+    <h1 class="page-title">Vacant Units</h1>
     <form method="POST" action="{{ url_for('sort_units') }}">
-        <select name="sort">
+        <select class="sort-selections" name="sort">
             <option value="runner">Runner</option>
             <option value="address">Address</option>
             <option value="vacant">Days Vacant</option>
             <option value="zipcode">Zipcode</option>
         </select>
-        <input type="submit" value="Sort">
+        <input class="sort-submit-button" type="submit" value="Sort">
     </form>
-
+    </div>
+</div>
+{% if not properties %}
+<div class="none-container-container">
+    <div class="none-container">
+        <p>No Properties To Display</p>
+    </div>
+</div>
+{% endif %}
     {% for property in properties %}
     <div class="property-info-container-container">
         <div class="property-info-container">

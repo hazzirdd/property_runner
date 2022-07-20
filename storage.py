@@ -24,8 +24,6 @@ def add_to_cloudinary(cover, name_of_file):
     else:
         return "Error"
 
-    print(f"New File: {name_of_file}")
-    print(f"All Files: {filenames}")
 
     return "Success"
 
@@ -43,7 +41,7 @@ def delete_from_cloudinary(name_of_file):
 
     dot_name_of_file = f".{name_of_file}"
     blob = bucket.blob(dot_name_of_file)
-    print(blob)
+
     blob.delete()
 
     # for file in storage_client.list_blobs(bucket):

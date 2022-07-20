@@ -1,5 +1,6 @@
-from multiprocessing import synchronize
-from turtle import dot
+from unittest import runner
+
+from zmq import THREAD_NAME_PREFIX
 from server_folder import app, db
 from server_folder.model import Runner, Manager, Property, Task, Picture, Team
 
@@ -10,6 +11,7 @@ from werkzeug.utils import secure_filename
 
 @app.route('/')
 def homepage():
+    team = Team.query.get(session['team_id'])
     properties = Property.query.all()
     day = datetime.datetime.today().weekday()
 
@@ -21,13 +23,10 @@ def homepage():
 
     if "runner" in session:
         team_id = session['team_id']
-        runners = Runner.query.all()
         runner_email = session["runner"]
 
-        for runner in runners:
-            if runner_email == runner.email:
-                runner = Runner.query.get(runner.runner_id)
-                runner_id = runner.runner_id
+        runner = Runner.query.filter(Runner.email == runner_email).first()
+        runner_id = runner.runner_id
 
         properties = Property.query.filter(Property.runner_id == runner_id, Property.team_id == team_id).all()
         all_tasks = Task.query.all()
@@ -57,11 +56,16 @@ def homepage():
                         needs_tasks.append(nickname[0])
                         task_count += 1
 
-        return render_template('homepage.html', needs_leasing_pics=needs_leasing_pics, needs_unit_check=needs_unit_check, needs_tasks=needs_tasks, check_count=check_count, pic_count=pic_count, task_count=task_count)
+        return render_template('homepage.html', needs_leasing_pics=needs_leasing_pics, needs_unit_check=needs_unit_check, needs_tasks=needs_tasks, check_count=check_count, pic_count=pic_count, task_count=task_count, team=team, person=runner)
 
     elif "manager" in session:
         runners = Runner.query.all()
+        managers = Manager.query.all()
         team_id = session["team_id"]
+        manager_email = session['manager']
+
+        manager = Manager.query.filter(Manager.email == manager_email).first()
+        manager_id = manager.manager_id
 
         properties = Property.query.filter(Property.team_id == team_id).all()
         all_tasks = Task.query.all()
@@ -92,7 +96,7 @@ def homepage():
                         task_count += 1
 
 
-        return render_template('homepage.html', needs_leasing_pics=needs_leasing_pics, needs_unit_check=needs_unit_check, needs_tasks=needs_tasks, check_count=check_count, pic_count=pic_count, task_count=task_count)
+        return render_template('homepage.html', needs_leasing_pics=needs_leasing_pics, needs_unit_check=needs_unit_check, needs_tasks=needs_tasks, check_count=check_count, pic_count=pic_count, task_count=task_count, team=team, person=manager)
     else:
         return redirect(url_for("manager_login"))
 
@@ -263,6 +267,7 @@ def past_unit_details(property_id):
 @app.route('/add_unit', methods=['POST', 'GET'])
 def add_unit():
     runners = Runner.query.order_by(Runner.first_name.desc()).all()
+    team_id = session['team_id']
 
     if 'manager' in session:
         email = session['manager']
@@ -293,11 +298,46 @@ def add_unit():
         cover = request.files['cover']
         runner_full_name = request.form['runner']
 
-        first, last = runner_full_name.split('_')
+        # If no runner given, auto assign to runner with least amount of units
+        if runner_full_name == 'auto':
+            runner_assignments = []
+            team_properties = Property.query.filter(Property.team_id == team_id, Property.vacant == True)
 
-        selected_runner = Runner.query.filter(Runner.first_name == first and Runner.last_name == last).first()
-        runner_name = selected_runner.first_name
-        runner_id = selected_runner.runner_id
+            for property in team_properties:
+                runner_assignments.append(property.runner_id)
+            def least_common_runner():
+                print(runner_assignments)
+                runner_assignments.sort()
+                n = len(runner_assignments)
+                min_count = n + 1
+                curr_count = 1
+                for i in range(1, n):
+                    if (runner_assignments[i] == runner_assignments[i - 1]):
+                        curr_count += 1
+                    else:
+                        if (curr_count < min_count):
+                            min_count = curr_count
+                            res = runner_assignments[i - 1]
+
+                        curr_count = 1
+
+                if (curr_count < min_count):
+                    min_count = curr_count
+                    res = runner_assignments[n - 1]
+
+                return res
+
+            runner_id = least_common_runner()
+            
+            selected_runner = Runner.query.get(runner_id)
+            print(selected_runner.first_name)    
+
+        else:
+            first, last = runner_full_name.split('_')
+
+            selected_runner = Runner.query.filter(Runner.first_name == first and Runner.last_name == last).first()
+            runner_name = selected_runner.first_name
+            runner_id = selected_runner.runner_id
 
         if address and new_address:
             flash('Please enter only one address', 'danger')
@@ -331,7 +371,7 @@ def add_unit():
             return redirect(url_for('add_unit'))
 
         if address:
-            print(f"Address: {address} | Unit: {unit} | Vacated On: {date} | Runner: {runner_id}")
+
             property = Property(cover=f"https://property-runner.mo.cloudinary.net/property-data/.{filename}", address=address, zipcode=zipcode, unit=unit, leasing_pics_taken=False, unit_check_done=False, vacant=True, date_vacated=date, days_vacant=0, runner_id=runner_id, team_id=session['team_id'])
             db.session.add(property)
             db.session.commit()
@@ -339,7 +379,6 @@ def add_unit():
 
             new_address_full = f"{new_address}, {city}, {state}, {zipcode}"
 
-            print(f"New Address: {new_address_full} | Unit: {unit} | Vacated On: {date} | Runner: {runner_name}")
             property = Property(cover=f"https://property-runner.mo.cloudinary.net/property-data/.{filename}", address=new_address_full, zipcode=zipcode, unit=unit, leasing_pics_taken=False, unit_check_done=False, vacant=True, date_vacated=date, days_vacant=0, runner_id=runner_id, team_id=session['team_id'])
             db.session.add(property)
             db.session.commit()
@@ -363,7 +402,7 @@ def assigned_units():
             runner_id = runner.runner_id
 
     for property in all_properties:
-        if property.runner_id == runner_id and property.team_id == team_id:
+        if property.runner_id == runner_id and property.team_id == team_id and property.vacant == True:
             properties.append(property)
 
             address = property.address.split(',')
@@ -416,6 +455,42 @@ def sort_units():
     return render_template('properties/vacant_units.html', properties=properties, runners=runners, addresses=addresses)
 
 
+@app.route('/sort_units_assigned', methods=['POST', 'GET'])
+def sort_units_assigned():
+    runners = Runner.query.all()
+    # all_properties = Property.query.all()
+    properties = []
+    addresses = {}
+
+    sort_by = request.form['sort']
+
+    if sort_by == 'runner':
+        all_properties = Property.query.order_by(Property.runner_id)
+
+    if sort_by == 'address':
+        all_properties = Property.query.order_by(Property.address)
+
+    if sort_by == 'vacant':
+        all_properties = Property.query.order_by(Property.date_vacated)
+
+    if sort_by == 'zipcode':
+        all_properties = Property.query.order_by(Property.zipcode)
+        
+    for property in all_properties:
+        if property.vacant == True and property.team_id == session['team_id']:
+            properties.append(property)
+
+            address = property.address.split(',')
+
+            addresses[property.property_id] = {
+                "street": address[0],
+                "city": address[1],
+                "state": address[2],
+                "zipcode": address[3]
+            }
+
+    return render_template('assigned_units.html', properties=properties, runners=runners, addresses=addresses)
+
 @app.route('/delete_pic/<picture_id>', methods=['POST'])
 def delete_pic(picture_id):
     picture = Picture.query.filter(Picture.picture_id == picture_id).one()
@@ -440,29 +515,35 @@ def delete_pic(picture_id):
 def map():
     import gmaps
     import googlemaps
+    import smtplib
+    import requests
 
     with open('api.txt') as f:
         api_key = f.readline()
         f.close
 
-    # gmaps.configure(api_key=api_key)
-
-    # new_york_coordinates = (40.75, -74.00)
-    # Durango = (37.2753,-107.880067)
-
-    # fig = gmaps.figure()
-    # layer = gmaps.directions.Directions(Durango, new_york_coordinates, mode='car')
-
-    # fig.add_layer(layer)
-    # fig
 
     map_client = googlemaps.Client(api_key)
+    work_place_address = '411 W 7200 S, Midvale, UT'
+    home_address = '451 E 8400 S, Sandy, UT'
+
+    home = 'chicago'
+    work = 'milwaukee'
+
+    url = 'https://maps.googleapis.com/maps/api/distancematrix/json?units=imperial&'
+
+    r = requests.get(url + "origins=" + home + "&destinations" + work + "&key=" + api_key)
+
     
-    work_place_address = '451 E 8400 S'
-    map_geocode = map_client.geocode(work_place_address)
-    map = map_geocode[0]['geometry'] 
+    print(r)
+    time = r.json()
+    # seconds = r.json()["rows"][0]["elements"][0]["duration"]["value"]
+
+    print("The total travel time from home to work is", time)
 
 
+    response = map_client.geocode(work_place_address)
+    map = response[0]['geometry']
     return render_template('maps/map.html', map=map)
 
 

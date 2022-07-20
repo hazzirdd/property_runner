@@ -1,15 +1,33 @@
 {% extends 'base.html' %}
 {% block content %}
-    <h1>(past) Details</h1>
-    <img src="{{ unit.cover }}">
-    <p>ADDRESS: {{ unit.address }}</p>
-    <p>UNIT: {{ unit.unit }}</p>
-    <p>RUNNER: {{ runner.first_name }} {{ runner.last_name }}</p>
 
-    {% if "manager" in session %}
-    <form method="post">
-        <input type="submit" value="Mark As Vacant">
-    </form>
-    {% endif %}
-
+    <div class="details-container-container">
+        <div class="details-container-past">
+            <img src="{{ unit.cover }}" class="details-img">
+            <div class="details-text-container">
+                <p style="font-size: 30px; text-align: center; font-weight: bold">{{ unit.address }}</p>
+                <p class="details-text">ADDRESS: {{ unit.address }}}</p>
+                <p class="details-text">UNIT: {{ unit.unit }}</p>
+                <p class="details-text">RUNNER: {{ runner.first_name }} {{ runner.last_name }}</p>
+    
+                {% if unit.unit_check_done == True %}
+                <p class="details-text">UNIT CHECK: <span style="color: rgb(6, 82, 11); font-weight:bold">Complete</span></p>
+                {% else %}
+                <p class="details-text">UNIT CHECK: <span style="color: rgb(143, 11, 11); font-weight: bold">Incomplete</span></p>
+                {% endif %}
+    
+                {% if unit.leasing_pics_taken == True %}
+                <p class="details-text">LEASING PICTURES: <span style="font-weight:bold;color: rgb(6, 82, 11);">Complete</span></p>
+                {% else %}
+                <p class="details-text">LEASING PICTURES: <span style="font-weight:bold;color: rgb(143, 11, 11);">Incomplete</span></p>
+                {% endif %}
+            </div>
+            {% if "manager" in session %}
+            <form method="post">
+                <input class="submit-button-past" type="submit" value="Mark As Vacant">
+            </form>
+            {% endif %}
+            </div>
+        </div>
+    </div>
 {% endblock %}

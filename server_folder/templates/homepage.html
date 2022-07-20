@@ -14,8 +14,15 @@
   {% endif %}
  {% endwith %}
 
-    <h1>Home</h1>
-    <a href="{{ url_for('properties.vacant_units') }}" >View Vacant Units</a>
+ <div class="home-container-container">
+    <div class="dashboard-container">
+        <h5>Dashboard</h5>
+        <div class="dashboard-title-box">
+            <h1>-{{ team.name }}-</h1>
+        </div>
+        <h4>{{ person.first_name }} {{ person.last_name }}</h4>
+    </div>
+ </div><br><br>
 
     <div class="home-container-container">
         <div class="home-dashboard">

@@ -1,15 +1,25 @@
 {% extends 'base.html' %}
 {% block content %}
-    <h1>Past Units</h1>
-    <form method="POST">
-        <select name="sort">
-            <option value="runner">Runner</option>
-            <option value="address">Address</option>
-            <option value="vacant">Days Vacant</option>
-        </select>
-        <input type="submit" value="Sort">
-    </form>
-
+<div class="title-container-container">
+    <div class="title-container">
+        <h1 class="page-title">Past Units</h1>
+        <form method="POST">
+            <select class="sort-selections" name="sort">
+                <option value="runner">Runner</option>
+                <option value="address">Address</option>
+                <option value="zipcode">Zipcode</option>
+            </select>
+            <input class="sort-submit-button" type="submit" value="Sort">
+        </form>
+    </div>
+</div>
+    {% if not properties %}
+    <div class="none-container-container">
+        <div class="none-container">
+            <p>No Properties To Display</p>
+        </div>
+    </div>
+    {% endif %}
     {% for property in properties %}
     <div class="property-info-container-container">
         <div class="property-info-container">
@@ -18,7 +28,7 @@
                 <a href="/past_units/{{ property.property_id }}"><img class="property_img" src="{{ property.cover }}"></a><br>
             </div>
             <a class="expand_view" href="/past_units/{{ property.property_id }}">Expand View</a>
-            <p class="property_details">ADDRESS: <span style="font-weight:bold;color: rgb(61, 61, 61);">{{ property.address }}</span> UNIT: <span style="font-weight:bold;color: rgb(61, 61, 61);">{{ property.unit }}</span></p>
+            <p class="property_details-past">ADDRESS: <span style="font-weight:bold;color: rgb(61, 61, 61);">{{ property.address }}</span> UNIT: <span style="font-weight:bold;color: rgb(61, 61, 61);">{{ property.unit }}</span></p>
   
 
             {% for runner in runners %}
