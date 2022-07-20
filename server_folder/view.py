@@ -1,3 +1,4 @@
+
 from flask import Flask, redirect, render_template, Blueprint, request, url_for, session, flash
 from flask_sqlalchemy import SQLAlchemy
 from datetime import *
@@ -154,7 +155,7 @@ def unit_details(property_id):
             res = add_to_cloudinary(cover_data, filename)
             if res == 'Error':
                 flash('Image name already exists', 'danger')
-                return redirect(url_for('add_unit'))
+                return redirect(url_for('homepage'))
 
             picture = Picture(picture=f"https://property-runner.mo.cloudinary.net/property-data/.{filename}", property_id=property_id)
             db.session.add(picture)

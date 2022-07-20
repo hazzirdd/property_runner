@@ -11,7 +11,6 @@ from werkzeug.utils import secure_filename
 
 @app.route('/')
 def homepage():
-    team = Team.query.get(session['team_id'])
     properties = Property.query.all()
     day = datetime.datetime.today().weekday()
 
@@ -22,6 +21,7 @@ def homepage():
     db.session.commit()
 
     if "runner" in session:
+        team = Team.query.get(session['team_id'])
         team_id = session['team_id']
         runner_email = session["runner"]
 
@@ -62,6 +62,7 @@ def homepage():
         runners = Runner.query.all()
         managers = Manager.query.all()
         team_id = session["team_id"]
+        team = Team.query.get(session['team_id'])
         manager_email = session['manager']
 
         manager = Manager.query.filter(Manager.email == manager_email).first()
@@ -527,12 +528,12 @@ def map():
     work_place_address = '411 W 7200 S, Midvale, UT'
     home_address = '451 E 8400 S, Sandy, UT'
 
-    home = 'chicago'
-    work = 'milwaukee'
+    home = '451 E 8400 S, Sandy, UT'
+    work = '411 W 7200 S, Midvale, UT'
 
     url = 'https://maps.googleapis.com/maps/api/distancematrix/json?units=imperial&'
 
-    r = requests.get(url + "origins=" + home + "&destinations" + work + "&key=" + api_key)
+    r = requests.get(url + "origins=" + home + "&destinations=" + work + "&key=" + api_key)
 
     
     print(r)

@@ -94,7 +94,7 @@
     {% for pic in property_pics %}
     <img src="{{ pic.picture }}" class="unit-details-pictures">
     <form method="post" action="/delete_pic/{{ pic.picture_id }}">
-        <input type="submit" value="delete">
+        <input class="delete-button" type="submit" value="delete">
     </form>
     {% endfor %}
 </div>

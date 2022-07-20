@@ -109,7 +109,7 @@ body {
 /* PROPERTY DETAILS */
 .details-container-container {
     display: flex;
-    justify-content: left;
+    justify-content: center;
     align-items: center;
 }
 
@@ -118,13 +118,16 @@ body {
     flex-direction: column;
     align-items: center;
     width: 1000px;
-    height: 900px;
+    height: 897px;
     border: 2px solid black;
     background-color: rgb(197, 193, 193);
-    left:10px;
+    position: relative;
+    top: -3px;
 }
 
+
 .details-container-past {
+    top: 51px;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -132,21 +135,21 @@ body {
     height: 700px;
     border: 2px solid black;
     background-color: rgb(197, 193, 193);
-    left:10px;
+    position: relative;
 }
 
 .details-text-container {
-    position: absolute;
+    position: relative;
     background-color: rgb(156, 156, 156);
-    right: 540px;
-    top: 150px;
+    right: -245px;
+    top: -405px;
     width: 460px;
 }
 
 .details-img {
-    position: absolute;
+    position: relative;
     width: 500px;
-    left: 2px;
+    left: -248px;
     border: 3px solid black;
 }
 
@@ -156,7 +159,7 @@ body {
 
 .form-container {
     position: relative;
-    bottom: -505px;
+    bottom: 274px;
     width: 100%;
     height: 390px;
     background-color: rgb(156, 156, 156);
@@ -191,22 +194,35 @@ body {
 }
 
 .submit-button-past {
-    position: absolute;
+    position: relative;
     border: 3px solid rgb(109, 99, 182);
     background-color: rgb(193, 188, 228);
     width: 500px;
     height: 60px;
-    bottom: 60px;
-    right: 800px;
-    font-weight: bold; 
+    bottom: 199px;
+    right: -21px;
+    font-weight: bold;
 }
 
 .unit-details-pictures {
     width: 350px;
+    border: 2px solid black;
 }
 
 .unit-details-pictures-container {
     background-color: aliceblue;
+    padding: 70px;
+    display: flex;
+    flex-direction: row;
+    align-items: end;
+}
+
+.delete-button {
+    width: 80px;
+    left: -213px;
+    position: relative;
+    border: 3px solid rgb(109, 99, 182);
+    background-color: rgb(193, 188, 228);
 }
 
 /* HOMEPAGE */
@@ -280,38 +296,88 @@ body {
     flex-direction: column;
     padding: 20px;
     width: 1000px;
-    height: 630px;
-    border: 2px solid black;
-    background-color: rgb(197, 193, 193);
+    height: 730px;
+    border: 4px solid black;
+    background-color: rgba(197, 193, 193, 0.52);
+    position: relative;
+    top: 73px;
 }
 
 .submit-button-add {
-    position: absolute;
+    position: relative;
     border: 3px solid rgb(109, 99, 182);
     background-color: rgb(193, 188, 228);
     width: 500px;
     height: 60px;
     font-weight: bold;
+    top: 5px;
+    left: -78px;
 }
 
+.add-title-container {
+    align-items: center;
+}
+
+.add-title {
+    position: relative;
+    left: 400px;
+    top: -19px;
+    font-size: 40px;
+    font-weight: bold;
+}
+
+.add-form-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    top: -18px;
+    left: 76px;
+}
+
+.form-text-add {
+    font-size: 25px;
+    font-weight: bold;
+}
+
+.form-text-add-or {
+    position: relative;
+    left: 143px;
+    font-size: 25px;
+    font-weight: bold;
+}
+
+.add-input {
+    position: relative;
+    left: 86px;
+}
 /* ADD RUNNER */
 .addrun-container {
     display: flex;
     flex-direction: column;
     align-items: center;
+    position: relative;
+    top: 144px;
     padding: 20px;
     width: 650px;
     height: 400px;
     border: 4px solid black;
-    background-color: transparent;
+    background-color: rgba(197, 193, 193, 0.52);
+}
+
+.runner-form {
+    position: relative;
+    left: 151px;
+    top: 18px;
 }
 
 .submit-button-runner {
-    position: absolute;
+    position: relative;
     border: 3px solid rgb(109, 99, 182);
     background-color: rgb(193, 188, 228);
     width: 500px;
     height: 60px;
-    left: 518px;
+    left: -145px;
+    top: -11px;
     font-weight: bold;
 }
