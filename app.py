@@ -1,9 +1,11 @@
-from unittest import runner
-
-from zmq import THREAD_NAME_PREFIX
+from distutils.command.build_scripts import first_line_re
 from server_folder import app, db
 from server_folder.model import Runner, Manager, Property, Task, Picture, Team
 
+import gmaps
+import googlemaps
+import smtplib
+import requests
 import datetime
 from flask import Flask, redirect, render_template, request, url_for, session, flash
 from werkzeug.utils import secure_filename
@@ -112,6 +114,27 @@ def create_account():
         first_name = request.form['first_name']
         last_name = request.form['last_name']
         company_name = request.form['company_name']
+        homebase = request.form['homebase']
+
+        if not first_name:
+            flash("Please provide a full name", "danger")
+            return redirect(url_for('create_account'))
+        elif not last_name:
+            flash("Please provide a full name", "danger")
+            return redirect(url_for('create_account'))
+        elif not email:
+            flash("Please provide an email address", "danger")
+            return redirect(url_for('create_account'))
+        elif not password:
+            flash("Please provide a password", "danger")
+            return redirect(url_for('create_account'))
+        elif not company_name:
+            flash("Please provide a company name", "danger")
+            return redirect(url_for('create_account'))
+        elif not homebase:
+            flash("Please provide a company address", "danger")
+            return redirect(url_for('create_account'))           
+
 
         managers = Manager.query.all()
         for manager in managers:
@@ -119,7 +142,7 @@ def create_account():
                 flash(f"Email is not available", 'danger')
                 return redirect(url_for('create_account'))
         
-        team = Team(name=company_name)
+        team = Team(name=company_name, homebase=homebase)
         db.session.add(team)
         db.session.commit()
 
@@ -269,6 +292,7 @@ def past_unit_details(property_id):
 def add_unit():
     runners = Runner.query.order_by(Runner.first_name.desc()).all()
     team_id = session['team_id']
+    team = Team.query.get(team_id)
 
     if 'manager' in session:
         email = session['manager']
@@ -282,7 +306,7 @@ def add_unit():
     all_properties = Property.query.order_by(Property.address.desc()).all()
     properties = []
     for property in all_properties:
-        if property.address not in properties:
+        if property.address not in properties and property.team_id == team_id:
             properties.append(property.address)
 
     if request.method == 'GET':
@@ -304,14 +328,30 @@ def add_unit():
             runner_assignments = []
             team_properties = Property.query.filter(Property.team_id == team_id, Property.vacant == True)
 
+            error_handler = []
+            for property in team_properties:
+                error_handler.append(property)
+
+            if not error_handler:
+                flash('Cannot auto assign runner at this time', 'danger')
+                return redirect(url_for('add_unit'))
+
             for property in team_properties:
                 runner_assignments.append(property.runner_id)
+
             def least_common_runner():
-                print(runner_assignments)
+
+                runners = Runner.query.filter(Runner.team_id == team_id)
+
                 runner_assignments.sort()
                 n = len(runner_assignments)
                 min_count = n + 1
                 curr_count = 1
+ 
+                for runner in runners:
+                    if runner.runner_id not in runner_assignments:
+                        return runner.runner_id
+
                 for i in range(1, n):
                     if (runner_assignments[i] == runner_assignments[i - 1]):
                         curr_count += 1
@@ -319,19 +359,17 @@ def add_unit():
                         if (curr_count < min_count):
                             min_count = curr_count
                             res = runner_assignments[i - 1]
-
                         curr_count = 1
 
                 if (curr_count < min_count):
                     min_count = curr_count
                     res = runner_assignments[n - 1]
-
                 return res
 
             runner_id = least_common_runner()
             
-            selected_runner = Runner.query.get(runner_id)
-            print(selected_runner.first_name)    
+            selected_runner = Runner.query.get(runner_id) 
+            print("AUTO SELECTED:", selected_runner.first_name)   
 
         else:
             first, last = runner_full_name.split('_')
@@ -362,6 +400,7 @@ def add_unit():
             flash('Please enter a cover image', 'danger')
             return redirect(url_for('add_unit'))
 
+        # ADD IMAGE TO CLOUDINARY
         from storage import add_to_cloudinary
         filename = secure_filename(cover.filename)
         mimetype = cover.mimetype
@@ -371,16 +410,36 @@ def add_unit():
             flash('Image name already exists', 'danger')
             return redirect(url_for('add_unit'))
 
+        # CALCULATE DISTANCE FROM HOMEBASE
+        with open('api.txt') as f:
+            api_key = f.readline()
+            f.close
+            url = 'https://maps.googleapis.com/maps/api/distancematrix/json?units=imperial&'
+
+            if address:
+                r = requests.get(url + "origins=" + team.homebase + "&destinations=" + address + "&key=" + api_key)
+            elif new_address:
+                new_address_full = f"{new_address}, {city}, {state}, {zipcode}"
+                r = requests.get(url + "origins=" + team.homebase + "&destinations=" + new_address_full + "&key=" + api_key)
+
+            miles = r.json()['rows'][0]['elements'][0]['distance']['text']
+            x = miles.split(' ')
+            comma_distance = x[0]
+            split_distance = comma_distance.split(',')
+            distance_str = ''.join(split_distance)
+            distance = float(distance_str)
+
+
         if address:
 
-            property = Property(cover=f"https://property-runner.mo.cloudinary.net/property-data/.{filename}", address=address, zipcode=zipcode, unit=unit, leasing_pics_taken=False, unit_check_done=False, vacant=True, date_vacated=date, days_vacant=0, runner_id=runner_id, team_id=session['team_id'])
+            property = Property(cover=f"https://property-runner.mo.cloudinary.net/property-data/.{filename}", address=address, zipcode=zipcode, unit=unit, leasing_pics_taken=False, unit_check_done=False, vacant=True, date_vacated=date, days_vacant=0, distance=distance, runner_id=runner_id, team_id=session['team_id'])
             db.session.add(property)
             db.session.commit()
         elif new_address:
 
             new_address_full = f"{new_address}, {city}, {state}, {zipcode}"
 
-            property = Property(cover=f"https://property-runner.mo.cloudinary.net/property-data/.{filename}", address=new_address_full, zipcode=zipcode, unit=unit, leasing_pics_taken=False, unit_check_done=False, vacant=True, date_vacated=date, days_vacant=0, runner_id=runner_id, team_id=session['team_id'])
+            property = Property(cover=f"https://property-runner.mo.cloudinary.net/property-data/.{filename}", address=new_address_full, zipcode=zipcode, unit=unit, leasing_pics_taken=False, unit_check_done=False, vacant=True, date_vacated=date, days_vacant=0, distance=distance, runner_id=runner_id, team_id=session['team_id'])
             db.session.add(property)
             db.session.commit()
 
@@ -422,7 +481,6 @@ def assigned_units():
 @app.route('/sort_units', methods=['POST', 'GET'])
 def sort_units():
     runners = Runner.query.all()
-    # all_properties = Property.query.all()
     properties = []
     addresses = {}
 
@@ -431,15 +489,21 @@ def sort_units():
     if sort_by == 'runner':
         all_properties = Property.query.order_by(Property.runner_id)
 
-    if sort_by == 'address':
+    elif sort_by == 'address':
         all_properties = Property.query.order_by(Property.address)
 
-    if sort_by == 'vacant':
+    elif sort_by == 'vacant':
         all_properties = Property.query.order_by(Property.date_vacated)
 
-    if sort_by == 'zipcode':
+    elif sort_by == 'zipcode':
         all_properties = Property.query.order_by(Property.zipcode)
-        
+
+    elif sort_by == 'distance':
+        all_properties = Property.query.order_by(Property.distance)
+
+    else:
+        all_properties = Property.query.all()
+
     for property in all_properties:
         if property.vacant == True and property.team_id == session['team_id']:
             properties.append(property)
@@ -468,14 +532,20 @@ def sort_units_assigned():
     if sort_by == 'runner':
         all_properties = Property.query.order_by(Property.runner_id)
 
-    if sort_by == 'address':
+    elif sort_by == 'address':
         all_properties = Property.query.order_by(Property.address)
 
-    if sort_by == 'vacant':
+    elif sort_by == 'vacant':
         all_properties = Property.query.order_by(Property.date_vacated)
 
-    if sort_by == 'zipcode':
+    elif sort_by == 'zipcode':
         all_properties = Property.query.order_by(Property.zipcode)
+
+    elif sort_by == 'distance':
+        all_properties = Property.query.order_by(Property.distance)
+
+    else:
+        all_properties = Property.query.all()
         
     for property in all_properties:
         if property.vacant == True and property.team_id == session['team_id']:
@@ -514,10 +584,6 @@ def delete_pic(picture_id):
 
 @app.route('/map')
 def map():
-    import gmaps
-    import googlemaps
-    import smtplib
-    import requests
 
     with open('api.txt') as f:
         api_key = f.readline()
@@ -528,19 +594,22 @@ def map():
     work_place_address = '411 W 7200 S, Midvale, UT'
     home_address = '451 E 8400 S, Sandy, UT'
 
-    home = '451 E 8400 S, Sandy, UT'
-    work = '411 W 7200 S, Midvale, UT'
+    home = '45 200 N, American Fork, Ut, 84003'
+    work = '1174 Graystone Way, Salt Lake City, UT, 84106'
 
     url = 'https://maps.googleapis.com/maps/api/distancematrix/json?units=imperial&'
 
     r = requests.get(url + "origins=" + home + "&destinations=" + work + "&key=" + api_key)
 
-    
-    print(r)
-    time = r.json()
+    miles = r.json()['rows'][0]['elements'][0]['distance']['text']
+    time = r.json()['rows'][0]['elements'][0]['duration']['text']
+
     # seconds = r.json()["rows"][0]["elements"][0]["duration"]["value"]
 
     print("The total travel time from home to work is", time)
+    print("Miles:", miles)
+
+
 
 
     response = map_client.geocode(work_place_address)

@@ -15,14 +15,18 @@
   {% endif %}
  {% endwith %}
 
-<h1>Create Account</h1>
-
-<form method="post">
-    <input type="text" placeholder="First Name" name="first_name">
-    <input type="text" placeholder="Last Name" name="last_name">
-    <input type="text" placeholder="Email" name="email">
-    <input type="text" placeholder="Company Name" name="company_name">
-    <input type="text" placeholder="Password" name="password">
-    <input type="submit" value="Create Account">
-</form>
+<div class="add-container-container">
+  <div class="addrun-container">
+    <h1>Create Account</h1>
+    <form class="runner-form" method="post">
+      <input type="text" placeholder="First Name" name="first_name"><br>
+      <input type="text" placeholder="Last Name" name="last_name"><br>
+      <input type="text" placeholder="Email" name="email"><br>
+      <input type="text" placeholder="Password" name="password"><br>
+      <input type="text" placeholder="Company Name" name="company_name"><br>
+      <input type="text" placeholder="Company Address" name="homebase"><br>
+      <input class="create-account-button" type="submit" value="Create Account">
+    </form>
+  </div>
+  </div>
 {% endblock %}

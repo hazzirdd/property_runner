@@ -381,3 +381,15 @@ body {
     top: -11px;
     font-weight: bold;
 }
+
+/* CREATE ACCOUNT */
+.create-account-button {
+    position: relative;
+    border: 3px solid rgb(109, 99, 182);
+    background-color: rgb(193, 188, 228);
+    width: 500px;
+    height: 60px;
+    left: -155px;
+    top: 34px;
+    font-weight: bold;
+}

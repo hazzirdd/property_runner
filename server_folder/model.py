@@ -16,6 +16,7 @@ class Team(db.Model):
 
     team_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String(255), nullable=False)
+    homebase = db.Column(db.String(255), nullable=False)
 
 class Manager(db.Model):
 
@@ -58,6 +59,7 @@ class Property(db.Model):
     vacant = db.Column(db.Boolean)
     date_vacated = db.Column(db.DateTime)
     days_vacant = db.Column(db.Integer)
+    distance = db.Column(db.Float)
     runner_id = db.Column(db.Integer, db.ForeignKey('runners.runner_id'))
     team_id = db.Column(db.Integer, db.ForeignKey("teams.team_id"))
     # runner = db.relationship('Runner', backref=db.backref('properties', order_by=property_id))

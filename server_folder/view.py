@@ -162,7 +162,7 @@ def unit_details(property_id):
 
         db.session.commit()
 
-        return redirect(url_for('past_units'))
+        return redirect(url_for('properties.vacant_units'))
 
     else:
 
