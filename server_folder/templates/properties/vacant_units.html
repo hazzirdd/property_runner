@@ -50,12 +50,18 @@
             <p class="property_details">LEASING PICTURES: <span style="font-weight:bold;color: rgb(215, 15, 15);">Incomplete</span></p>
             {% endif %}
 
+            
             {% for runner in runners %}
-                {% if runner.runner_id == property.runner_id %}
-                <p class="property_details">RUNNER: <span style="font-weight:bold;color: rgb(61, 61, 61);">{{ runner.first_name }} {{ runner.last_name }}</span></p>
+            {% if runner.runner_id == property.runner_id %}
+            <p class="property_details">RUNNER: <span style="font-weight:bold;color: rgb(61, 61, 61);">{{ runner.first_name }} {{ runner.last_name }}</span></p>
+            {% endif %}
+            {% endfor %}
+            
+            {% for task in tasks %}
+                {% if task.property_id == property.property_id and task.completed == False %}
+                    <p class="property_details">-{{ task.task }} <span style="font-weight:bold;color: rgb(215, 15, 15);">Incomplete</span></p>
                 {% endif %}
-                {% endfor %}
-                
+            {% endfor %}
             </div>
         </div>
     </div>

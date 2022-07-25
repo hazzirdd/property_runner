@@ -20,6 +20,8 @@ def vacant_units():
     properties = []
     addresses = {}
 
+    tasks = Task.query.all()
+
     for property in all_properties:
         if property.vacant == True and property.team_id == session['team_id']:
             properties.append(property)
@@ -40,7 +42,7 @@ def vacant_units():
             property.days_vacant = days_vacant
             db.session.commit()
 
-    return render_template('properties/vacant_units.html', properties=properties, runners=runners, addresses=addresses)
+    return render_template('properties/vacant_units.html', properties=properties, runners=runners, addresses=addresses, tasks=tasks)
 
 
 @properties_blueprint.route('/<property_id>', methods=['POST', 'GET'])

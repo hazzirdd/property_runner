@@ -1,4 +1,5 @@
 from distutils.command.build_scripts import first_line_re
+from zipfile import ZIP_MAX_COMMENT
 from server_folder import app, db
 from server_folder.model import Runner, Manager, Property, Task, Picture, Team
 
@@ -114,7 +115,13 @@ def create_account():
         first_name = request.form['first_name']
         last_name = request.form['last_name']
         company_name = request.form['company_name']
+
         homebase = request.form['homebase']
+        city = request.form['city']
+        state = request.form['state']
+        zipcode = request.form['zipcode']
+
+        address = f"{homebase}, {city}, {state}, {zipcode}"
 
         if not first_name:
             flash("Please provide a full name", "danger")
@@ -133,7 +140,16 @@ def create_account():
             return redirect(url_for('create_account'))
         elif not homebase:
             flash("Please provide a company address", "danger")
-            return redirect(url_for('create_account'))           
+            return redirect(url_for('create_account'))
+        elif not city:
+            flash("Please provide a city", "danger")
+            return redirect(url_for("create_account"))
+        elif not state:
+            flash("Please provide a state", "danger")
+            return redirect(url_for("create_account"))   
+        elif not zipcode:
+            flash("Please provide a zipcode", "danger")
+            return redirect(url_for("create_account"))     
 
 
         managers = Manager.query.all()
@@ -142,7 +158,7 @@ def create_account():
                 flash(f"Email is not available", 'danger')
                 return redirect(url_for('create_account'))
         
-        team = Team(name=company_name, homebase=homebase)
+        team = Team(name=company_name, homebase=address)
         db.session.add(team)
         db.session.commit()
 
@@ -614,7 +630,77 @@ def map():
 
     response = map_client.geocode(work_place_address)
     map = response[0]['geometry']
+
+    # from gmplot import gmplot
+    # # Create the map plotter:
+    # apikey = '' # (your API key here)
+    # gmap = gmplot.GoogleMapPlotter(37.766956, -122.448481, 14, api_key=api_key)
+
+    # # Mark a hidden gem:
+    # gmap.marker(37.770776, -122.461689, color='cornflowerblue')
+
+    # # Highlight some attractions:
+    # attractions_lats, attractions_lngs = zip(*[
+    #     (37.769901, -122.498331),
+    #     (37.768645, -122.475328),
+    #     (37.771478, -122.468677),
+    #     (37.769867, -122.466102),
+    #     (37.767187, -122.467496),
+    #     (37.770104, -122.470436)
+    # ])
+    # gmap.scatter(attractions_lats, attractions_lngs, color='#3B0B39', size=40, marker=False)
+
+    # # Outline the Golden Gate Park:
+    # golden_gate_park = zip(*[
+    #     (37.771269, -122.511015),
+    #     (37.773495, -122.464830),
+    #     (37.774797, -122.454538),
+    #     (37.771988, -122.454018),
+    #     (37.773646, -122.440979),
+    #     (37.772742, -122.440797),
+    #     (37.771096, -122.453889),
+    #     (37.768669, -122.453518),
+    #     (37.766227, -122.460213),
+    #     (37.764028, -122.510347)
+    # ])
+    # gmap.polygon(*golden_gate_park, color='cornflowerblue', edge_width=10)
+
+    # # Draw the map to an HTML file:
+    # gmap.draw('map.html')
+
+
     return render_template('maps/map.html', map=map)
+
+
+@app.route('/mymap')
+def mymap():
+
+    return render_template('maps/mymap.html')
+
+@app.route('/delete/<property_id>', methods=['POST', 'GET'])
+def delete(property_id):
+
+    tasks = Task.query.filter(Task.property_id == property_id)
+    if tasks:
+        for task in tasks:
+            db.session.delete(task)
+
+    property = Property.query.get(property_id)
+    pic_split = property.cover.split('/')
+    dot_filename = pic_split[-1]
+    filename = dot_filename[1:]
+
+    from storage import delete_from_cloudinary
+    delete_from_cloudinary(filename)
+
+    db.session.delete(property)
+    db.session.commit()
+    
+    
+    print(f'{property_id} DELETED')
+
+
+    return redirect(url_for('past_units'))
 
 
 if __name__ == '__main__':

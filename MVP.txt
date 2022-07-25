@@ -19,5 +19,10 @@ Future Features:
 
 NOTES:
 -Add unit_check_date column to properties
+-Make an error for 'address doesnt exixst' before it gets added to the database'
+
+-Make creating company account address better
+-Make passwords seceret
+-Add label for move out date on Add Unit Page
 
 tailwind
