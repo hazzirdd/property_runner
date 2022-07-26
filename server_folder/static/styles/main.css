@@ -135,7 +135,7 @@ body {
     flex-direction: column;
     align-items: center;
     width: 1000px;
-    height: 700px;
+    height: 780px;
     border: 2px solid black;
     background-color: rgb(197, 193, 193);
     position: relative;
@@ -147,6 +147,7 @@ body {
     right: -245px;
     top: -405px;
     width: 460px;
+    padding: 8px;
 }
 
 .details-img {
@@ -240,6 +241,14 @@ body {
     font-weight: bold;
 }
 
+.delete-unit-button:hover {
+    color:black;
+    text-decoration: double;
+    transform: scale(1.);
+    background-color: brown;
+    border: 3px solid rgb(175, 23, 23);
+}
+
 /* HOMEPAGE */
 .home-container-container {
     display: flex;
@@ -311,7 +320,7 @@ body {
     flex-direction: column;
     padding: 20px;
     width: 1000px;
-    height: 730px;
+    height: 775px;
     border: 4px solid black;
     background-color: rgba(197, 193, 193, 0.52);
     position: relative;

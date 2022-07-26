@@ -1,5 +1,4 @@
-from distutils.command.build_scripts import first_line_re
-from zipfile import ZIP_MAX_COMMENT
+
 from server_folder import app, db
 from server_folder.model import Runner, Manager, Property, Task, Picture, Team
 
@@ -419,6 +418,7 @@ def add_unit():
         # ADD IMAGE TO CLOUDINARY
         from storage import add_to_cloudinary
         filename = secure_filename(cover.filename)
+        # filename = str(hash(filename_base))
         mimetype = cover.mimetype
         cover_data = cover.read()
         res = add_to_cloudinary(cover_data, filename)
